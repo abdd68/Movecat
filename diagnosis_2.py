@@ -11,31 +11,26 @@ import os
 import pickle
 import math
 import json
-# test
+from tkinter import messagebox
+
 def load_translations(filepath):
     with open(filepath, 'r', encoding='utf-8') as file:
         return json.load(file)
+    
+def load_user_data(file_path):
+    if not os.path.exists(file_path):
+        return {}
+    with open(file_path, "r", encoding="utf-8") as file:
+        return json.load(file)
+
+def save_user_data(file_path, data):
+    with open(file_path, "w", encoding="utf-8") as file:
+        json.dump(data, file, indent=4)
 
 def get_translation(translations, lang, key):
     return translations.get(lang, {}).get(key, key)
 
-def str2strint(str_):
-    if str_ == "None" or str_ == "没有" or str_ == "Ninguno" :
-        return '0'
-    elif str_ == "A little" or str_ == "轻微" or str_ == "Un poco" :
-        return '1'
-    elif str_ == "Somewhat" or str_ == "有一些" or str_ == "Algo" :
-        return '2'
-    elif str_ == 'Quite a bit' or str_ == "较重" or str_ == "Relativamente grave" :
-        return '3'
-    elif str_ == 'Severe' or str_ == "严重" or str_ == "Severo" :
-        return '4'
-    elif str_ == "Yes" or str_ == "是" or str_ == "Sí":
-        return '1'
-    elif str_ == "No" or str_ == "否":
-        return '0'
-    else:
-        return str_
+
 
 class CreateToolTip:
     def __init__(self, widget, text, delay=420):
@@ -76,7 +71,7 @@ class CreateToolTip:
 
 class MyScrollableCheckboxFrame(ctk.CTkScrollableFrame):
     def __init__(self, master, title, labels, instructions, num_columns, font, get_text):
-        super().__init__(master, width=660, height=270, label_text=get_text(title))
+        super().__init__(master, width=660, height=350, label_text=get_text(title))
         self.title = title
         self.labels = labels
         self.instructions = instructions
@@ -89,7 +84,7 @@ class MyScrollableCheckboxFrame(ctk.CTkScrollableFrame):
         self.get_text = get_text
         self.lrow = 1
         bg_color = self.cget("fg_color")
-        for i, (label_text, suggestion) in enumerate(self.labels.items()):
+        for i, (label_text) in enumerate(self.labels.keys()):
             row, column = i // num_columns, i % num_columns
             label_frame = ctk.CTkFrame(self, bg_color=bg_color)
             label_frame.grid(row=row+1, column=column*2, padx=5, pady=5, sticky='w')
@@ -105,17 +100,18 @@ class MyScrollableCheckboxFrame(ctk.CTkScrollableFrame):
             tooltip_text = self.instructions[i]
             tooltip = CreateToolTip(label, tooltip_text)
             self.tooltip_handles.append(tooltip)
-            entry_var = ctk.StringVar(value=suggestion)
+            entry_b = ctk.StringVar(value='')
+            entry_var = ctk.StringVar(value='-')
             if i < 4:
-                entry = ctk.CTkEntry(self, textvariable=entry_var)
+                entry = ctk.CTkEntry(self, textvariable=entry_b)
             elif i < 28:
-                entry = ctk.CTkOptionMenu(self, variable=None, values=self.options)
+                entry = ctk.CTkOptionMenu(self, variable=entry_var, values=self.options)
             elif i < 30:
-                entry = ctk.CTkOptionMenu(self, variable=None, values=['No', 'Yes'])
+                entry = ctk.CTkOptionMenu(self, variable=entry_var, values=['No', 'Yes'])
             elif i < 32:
-                entry = ctk.CTkEntry(self, textvariable=entry_var)
+                entry = ctk.CTkEntry(self, textvariable=entry_b)
             else:
-                entry = ctk.CTkOptionMenu(self, variable=None, values=['No', 'Yes'])
+                entry = ctk.CTkOptionMenu(self, variable=entry_var, values=['No', 'Yes'])
             entry.grid(row=row+1, column=column*2+1, padx=5, pady=5, sticky='w')
 
             self.entries.append(entry)
@@ -128,7 +124,9 @@ class MyScrollableCheckboxFrame(ctk.CTkScrollableFrame):
 
     def get(self):
         for i, (key, value) in enumerate(self.labels.items()):
-            self.labels[key] = str2strint(self.entries[i].get())
+            self.labels[key] = self.str2int(i, self.entries[i].get())
+            if self.labels[key] is None:
+                break
         return self.labels
     
     def update_texts(self):
@@ -141,6 +139,61 @@ class MyScrollableCheckboxFrame(ctk.CTkScrollableFrame):
                 self.entries[i].configure(values=[self.get_text(option) for option in self.options])
             elif i >= 28 and i < 30 or i >= 32:
                 self.entries[i].configure(values=[self.get_text(option) for option in ['No', 'Yes']])
+    
+    def str2int(self, i, str_):
+        if i < 28 and str_ == '-':
+            # 弹出警告窗口，并停止执行
+            messagebox.showwarning(self.get_text("Incomplete Data"), self.get_text("Data not fully completed. Please fill in all required fields."))
+            return None
+        if str_ == "None" or str_ == "没有" or str_ == "Ninguno" :
+            return '0'
+        elif str_ == "A little" or str_ == "轻微" or str_ == "Un poco" :
+            return '1'
+        elif str_ == "Somewhat" or str_ == "有一些" or str_ == "Algo" :
+            return '2'
+        elif str_ == 'Quite a bit' or str_ == "较重" or str_ == "Relativamente grave" :
+            return '3'
+        elif str_ == 'Severe' or str_ == "严重" or str_ == "Severo" :
+            return '4'
+        elif str_ == "Yes" or str_ == "是" or str_ == "Sí":
+            return '1'
+        elif str_ == "No" or str_ == "否":
+            return '0'
+        else:
+            return str_
+        
+    def int2str(self, i, int_):
+        if int_ == "0" :
+            if i >= 4 and i < 28:
+                return "None"
+            elif i >= 28 and i < 30 or i >= 32:
+                return "No"
+            else:
+                return int_
+        elif int_ == "1" :
+            if i >= 4 and i < 28:
+                return "A little"
+            elif i >= 28 and i < 30 or i >= 32:
+                return "Yes"
+            else:
+                return int_
+        elif int_ == "2" :
+            if i >= 4 and i < 28:
+                return "Somewhat"
+            else:
+                return int_
+        elif int_ == "3" :
+            if i >= 4 and i < 28:
+                return "Quite a bit"
+            else:
+                return int_
+        elif int_ == "4" :
+            if i >= 4 and i < 28:
+                return "Severe"
+            else:
+                return int_
+        else:
+            return int_
     
 
 class PLOTFrame(ctk.CTkScrollableFrame):
@@ -186,16 +239,25 @@ class Page1(ctk.CTkFrame):
         super().__init__(parent)
         self.parent = parent
         self.font = ("Helvetica", 16)
-        self.create_widgets()
+        self.construct()
 
-    def create_widgets(self):
+    def construct(self):
         self.page_label = ctk.CTkLabel(self, text=self.parent.get_text("title"), font=self.font)
         self.page_label.grid(row=0, column=0, pady=50)
 
-        self.button_begin = ctk.CTkButton(self, text=self.parent.get_text("begin_detection"), command=lambda: self.parent.show_frame("Page2"), font=self.font)
-        self.button_begin.grid(row=1, column=0, pady=10)
+        self.button_login, self.button_begin = None, None
+        if self.parent.current_user is None:
+            self.button_login = ctk.CTkButton(self, text=self.parent.get_text("Login/Register"), command=lambda: self.parent.show_frame("PageLogin"), font=self.font)
+            self.button_login.grid(row=1, column=0, pady=10)
+        else:
+            self.button_begin = ctk.CTkButton(self, text=self.parent.get_text("begin_detection"), command=lambda: self.parent.show_frame("Page2"), font=self.font)
+            self.button_begin.grid(row=2, column=0, pady=10)
         self.button_about = ctk.CTkButton(self, text=self.parent.get_text("about"), command=lambda: self.parent.show_frame("Pageabout"), font=self.font)
-        self.button_about.grid(row=2, column=0, pady=10)
+        self.button_about.grid(row=3, column=0, pady=10)
+
+    def remove(self):
+        for widget in self.winfo_children():
+            widget.destroy()
 
     def configure_grid(self):
         for row in range(3):
@@ -204,7 +266,10 @@ class Page1(ctk.CTkFrame):
 
     def update_texts(self):
         self.page_label.configure(text=self.parent.get_text("title"))
-        self.button_begin.configure(text=self.parent.get_text("begin_detection"))
+        if self.button_login is not None:
+            self.button_login.configure(text=self.parent.get_text("Login/Register"))
+        if self.button_begin is not None:
+            self.button_begin.configure(text=self.parent.get_text("begin_detection"))
         self.button_about.configure(text=self.parent.get_text("about"))
 
 class Pageabout(ctk.CTkFrame):
@@ -273,8 +338,8 @@ class Page2(ctk.CTkFrame):
             self.parent.show_frame("Page3")
 
         self.submit_button = ctk.CTkButton(self, text=self.parent.get_text("submit"), command=on_button, font=self.font)
-        self.back_button = ctk.CTkButton(self, text=self.parent.get_text("return"), command=lambda: self.parent.show_frame("Page1"), font=self.font)
         self.submit_button.grid(row=2, column=0, pady=20, sticky="ew")
+        self.back_button = ctk.CTkButton(self, text=self.parent.get_text("return"), command=lambda: self.parent.show_frame("Page1"), font=self.font)
         self.back_button.grid(row=2, column=1, pady=20, sticky="ew")
 
     def configure_grid(self):
@@ -390,19 +455,78 @@ class Pagechart(ctk.CTkFrame):
         self.page_label.configure(text=self.parent.get_text("plot_bar_chart"))
         self.back_button.configure(text=self.parent.get_text("return"))
 
+class PageLogin(ctk.CTkFrame):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.parent = parent
+        self.construct()
+
+    def construct(self):
+        self.label_username = ctk.CTkLabel(self, text="Username:")
+        self.label_username.grid(row=0, column=1, padx=10, pady=50, sticky="e")
+
+        self.entry_username = ctk.CTkEntry(self)
+        self.entry_username.grid(row=0, column=2, padx=10, pady=10, sticky="w")
+
+        self.label_password = ctk.CTkLabel(self, text="Password:")
+        self.label_password.grid(row=1, column=1, padx=10, pady=10, sticky="e")
+
+        self.entry_password = ctk.CTkEntry(self)
+        self.entry_password.grid(row=1, column=2, padx=10, pady=10, sticky="w")
+
+        self.button_login = ctk.CTkButton(self, text="Login", command=self.login)
+        self.button_login.grid(row=2, column=1, columnspan=2, padx=20, pady=10)
+
+        self.button_register = ctk.CTkButton(self, text="Register", command=self.register)
+        self.button_register.grid(row=3, column=1, columnspan=2, padx=10, pady=10)
+        
+        self.back_button = ctk.CTkButton(self, text=self.parent.get_text("return"), command=lambda: self.parent.show_frame("Page1"))
+        self.back_button.grid(row=4, column=1, columnspan=2, pady=10)
+    
+    def configure_grid(self):
+        for row in range(5):
+            self.grid_rowconfigure(row, weight=0)
+        for column in range(4):
+            self.grid_columnconfigure(column, weight=1)
+
+    def login(self):
+        username = self.entry_username.get()
+        password = self.entry_password.get()
+        if username in self.parent.user_data and self.parent.user_data[username] == password:
+            self.parent.current_user = username
+            messagebox.showinfo("Login", "Login successful")
+            self.parent.show_frame("Page1")
+        else:
+            messagebox.showerror("Login", "Invalid username or password: your username or password is incorrect.")
+
+    def register(self):
+        username = self.entry_username.get()
+        password = self.entry_password.get()
+        if username in self.parent.user_data:
+            messagebox.showerror("Register", "Username already exists")
+        elif username.strip() == '' or password.strip() == '':
+            messagebox.showerror("Register", "Invalid username or password: can NOT be empty.")
+        else:
+            self.parent.user_data[username] = password
+            save_user_data(self.parent.user_data_path, self.parent.user_data)
+            messagebox.showinfo("Register", "Registration successful")
+
 class App(ctk.CTk):
     def __init__(self):
         super().__init__()
 
         self.translations = load_translations(os.path.join(basepath, "translations.json"))
+        self.user_data_path = os.path.join(basepath, "user_data.json")
+        self.user_data = load_user_data(self.user_data_path)
         self.font = ("Helvetica", 16)
         self.lang = 'English'
+        self.current_user = None
         self.labels = OrderedDict({ 'Age (years)': '40', 'Time Lapse (years)': '1', 'Weight (Kg)': '60', 'Height (cm)': '170', 'Limited shoulder movement': "0",\
                                     'Limited elbow movement': "0", 'Limited wrist movement': "0", 'Limited fingers movement': "0", 'Limited arm movement': "0", 'Arm or hand swelling': "0",\
                                     'Breast swelling': "0", 'Chest swelling': "0", 'Toughness or thickness of skin': "0", 'Pain, aching, soreness': "0", 'Tightness': "0", 'Firmness': "0",\
                                     'Heaviness': "1", 'Numbness': "0", 'Burning': "0", 'Stabbing': "0", 'Tingling': "0", 'Fatigue': "0", 'Weakness': "0", 'Redness': "0", 'Hotness': "0",\
                                     'Stiffness': "0", 'Tenderness': "0", 'Blister': "0", 'Chemotherapy': '0', 'Radiation': '0', 'SLNB_Removed_LN': '0', 'ALND_Removed_LN': '0',\
-                                    'Mastectomy': '0', 'Lumpectomy': '0', 'Hormonal therapy': '0'})  # key: default value
+                                    'Mastectomy': '0', 'Lumpectomy': '0', 'Hormonal therapy': '0'})  # the default value has been abandoned.
         self.instructions = ['Your age (years)', 'Time lapse since your recent breast cancer surgery (years)', 'Body weight (Kg)', 'Height (cm)', 'How much do you feel your shoulder movement is limited?', 'How much do you feel your elbow movement is limited?', 'How much do you feel your wrist movement is limited?', 'How much do you feel your fingers movement is limited?', 'How much do you feel your arm movement is limited?', 'How much do your arm or hand swell: if both, select the most intense feelings.', 'How much does your breast swell?', 'How much does your chest swell?', 'Toughness or thickness of skin', 'Do you feel pain, aching, or soreness: if more than one feeling, select the most intense one.', 'Tightness of your affected arm.', 'Firmness of your affected arm.', 'Heaviness of your affected arm.', 'Numbness of your affected arm.', 'The feeling of burning of your affected arm.', 'The feeling of stabbing of your affected arm.', 'The feeling of tingling, or feeling of needles of your affected arm.', 'The feeling of fatigue of your affected arm.', 'The feeling of weakness of your affected arm.', 'How much does your affected arm looks red?', 'How much does your affected arm feel hot?', 'How much does your affected arm feel stiff?', 'How much does your affected arm feel sensitive or tender when touching things?', 'Does you affected arm blisters?', 'Whether the patient had chemotherapy.', 'Whether the patient had radiation.', 'The number of removed sentinel lymph nodes.', 'The number of removed axillary lymph nodes', 'Whether the patient had Mastectomy.', 'Whether the patient had Lumpectomy.', 'Whether the patient had hormonal therapy.']
         self.output_labels = OrderedDict({'BMI': "22.1", 'Age': "40", 'TIME_LAPSE': "1", 'Mobility': "1", 'ArmSwelling': "0", 'BreastSwelling': "0", 'Skin': "0", 'PAS': "0", 'FHT': "1", 'DISCOMFORT': "0", 'SYM_COUNT': "2", 'ChestWallSwelling': "0", 'Chemotherapy': "1", 'Radiation': "0", 'Number_nodes': "1", 'Mastectomy': "1", 'Lumpectomy': "0", 'Hormonal': "0"})
         ctk.set_appearance_mode("light")
@@ -410,12 +534,17 @@ class App(ctk.CTk):
         self.geometry("800x600")
         self.menu_bar = tk.Menu(self, font=self.font)
         self.config(menu=self.menu_bar)
+        # language_menu
         self.language_menu = tk.Menu(self.menu_bar, tearoff=0, font=self.font)
         self.menu_bar.add_cascade(label="Language", menu=self.language_menu)
-        # 添加语言选项
         languages = ["English (English)", "Chinese (简体中文)", "Spanish (Español)"]
         for language in languages:
             self.language_menu.add_command(label=language, command=lambda lang=language: self.set_language(lang))
+        # Account menu
+        self.account_menu = tk.Menu(self.menu_bar, tearoff=0, font=self.font)
+        self.menu_bar.add_cascade(label="Account", menu=self.account_menu)
+        self.account_menu.add_command(label='Login/Register', command=lambda: self.show_frame("PageLogin"))
+        self.account_menu.add_command(label='Logout', command=lambda: self.logout())
 
         # Help menu
         self.help_menu = tk.Menu(self.menu_bar, tearoff=0, font=self.font)
@@ -428,6 +557,7 @@ class App(ctk.CTk):
         self.show_frame("Page1")
 
     def create_frames(self):
+        self.frames["PageLogin"] = PageLogin(self)
         self.frames["Page1"] = Page1(self)
         self.frames["Page2"] = Page2(self)
         self.frames["Page3"] = Page3(self)
@@ -441,6 +571,10 @@ class App(ctk.CTk):
         self.grid_columnconfigure(0, weight=1)
 
     def show_frame(self, page_name):
+        if page_name == 'Page2':
+            if self.current_user is None:
+                messagebox.showinfo(self.get_text("Not login"), self.get_text("You're logged out now. Please register or login first."))
+                return
         frame = self.frames[page_name]
         if hasattr(frame, "remove") and callable(getattr(frame, "remove")):
             self.frames[page_name].remove()
@@ -457,9 +591,12 @@ class App(ctk.CTk):
 
     def update_texts(self):
         self.menu_bar.entryconfig(1, label=self.get_text("Language"))
-        self.menu_bar.entryconfig(2, label=self.get_text("Help"))
+        self.menu_bar.entryconfig(2, label=self.get_text("Account"))
+        self.menu_bar.entryconfig(3, label=self.get_text("Help"))
         self.help_menu.entryconfig(0, label=self.get_text("Instructions"))
         self.help_menu.entryconfig(1, label=self.get_text("About"))
+        self.account_menu.entryconfig(0, label=self.get_text("Login/Register"))
+        self.account_menu.entryconfig(1, label=self.get_text("Logout"))
         for key, frame in self.frames.items():
             if key == 'Page3' and not self.frames["Page3"].constructed: # This page should not be updated initially, since it can not be initially constructed.
                 continue
@@ -470,6 +607,11 @@ class App(ctk.CTk):
         # Function to display instructions
         tk.messagebox.showinfo("Instructions", self.get_text("In the detection page, detailed instructions are shown when you move the cursor🖱️ close to the words (for example, Your age (years)...)."))
 
+    def logout(self):
+        self.current_user = None
+        messagebox.showinfo(self.get_text("Logout"), self.get_text("Logout sccessfully."))
+        self.show_frame("Page1")
+        return
 if __name__ == '__main__':
     global basepath
     if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):

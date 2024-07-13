@@ -105,7 +105,15 @@
         "Instructions": "Instructions",
         "About": "About",
         "Yes": "Yes",
-        "No": "No"
+        "No": "No",
+        "Incomplete Data": "Incomplete Data",
+        "Data not fully completed. Please fill in all required fields.": "Data not fully completed. Please fill in all required fields.",
+        "Login/Register": "Login/Register",
+        "You're logged out now. Please register or login first.": "You're logged out now. Please register or login first.",
+        "Not login": "Not login",
+        "Logout": "Logout",
+        "Logout sccessfully.": "Logout sccessfully.",
+        "Account":"Account"
     
     },
     "Chinese": {
@@ -214,7 +222,15 @@
         "Instructions": "说明",
         "About": "关于",
         "Yes": "是",
-        "No": "否"
+        "No": "否",
+        "Incomplete Data": "不完整的数据",
+        "Data not fully completed. Please fill in all required fields.": "数据未完全完成。请填写所有必填项。",
+        "Login/Register": "登录/注册",
+        "You're logged out now. Please register or login first.": "您现在在注销状态。请先注册或登录。",
+        "Not login": "未登录",
+        "Logout": "注销",
+        "Logout sccessfully.": "注销成功！",
+        "Account": "账户"
     },
     "Spanish": {
         "title": "Sistema de Detección Temprana de Linfedema",
@@ -322,7 +338,15 @@
         "Instructions": "Instrucciones",
         "About": "Acerca de",
         "Yes": "Sí",
-        "No": "No"
+        "No": "No",
+        "Incomplete Data": "Datos incompletos",
+        "Data not fully completed. Please fill in all required fields.": "Datos no completados. Por favor rellene todos los campos requeridos.",
+        "Login/Register": "Inicio de sesión/registro",
+        "You're logged out now. Please register or login first.": "Ahora estás desconectado. Por favor regístrate o inicia sesión primero.",
+        "Not login": "No iniciar sesión",
+        "Logout": "Cerrar sesión",
+        "Logout sccessfully.": "Cierre de sesión exitoso.",
+        "Account": "Cuenta"
     
     }
 }
