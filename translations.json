@@ -103,7 +103,9 @@
         "Help": "Help",
         "Language": "Language",
         "Instructions": "Instructions",
-        "About": "About"
+        "About": "About",
+        "Yes": "Yes",
+        "No": "No"
     
     },
     "Chinese": {
@@ -210,7 +212,9 @@
         "Help": "帮助",
         "Language": "语言",
         "Instructions": "说明",
-        "About": "关于"
+        "About": "关于",
+        "Yes": "是",
+        "No": "否"
     },
     "Spanish": {
         "title": "Sistema de Detección Temprana de Linfedema",
@@ -307,16 +311,18 @@
         "Whether the patient had Mastectomy.": "Si el paciente tuvo Mastectomía.",
         "Whether the patient had Lumpectomy.": "Si el paciente tuvo Lumpectomía.",
         "Whether the patient had hormonal therapy.": "Si el paciente tuvo terapia hormonal.",
-        "None": "ninguno", 
+        "None": "Ninguno", 
         "A little": "Un poco",
-        "Somewhat": "algo", 
+        "Somewhat": "Algo", 
         "Quite a bit": "Relativamente grave", 
         "Severe": "Severo",
         "In the detection page, detailed instructions are shown when you move the cursor🖱️ close to the words (for example, Your age (years)...).": "En la página de detección, se muestran instrucciones detalladas cuando mueve el cursor🖱️ cerca de las palabras (por ejemplo, su edad (años)...).",
         "Help": "Ayuda",
         "Language": "Lengua",
         "Instructions": "Instrucciones",
-        "About": "Acerca de"
+        "About": "Acerca de",
+        "Yes": "Sí",
+        "No": "No"
     
     }
 }

@@ -20,16 +20,20 @@ def get_translation(translations, lang, key):
     return translations.get(lang, {}).get(key, key)
 
 def str2strint(str_):
-    if str_ == "None":
+    if str_ == "None" or str_ == "没有" or str_ == "Ninguno" :
         return '0'
-    elif str_ == "A little":
+    elif str_ == "A little" or str_ == "轻微" or str_ == "Un poco" :
         return '1'
-    elif str_ == "Somewhat":
+    elif str_ == "Somewhat" or str_ == "有一些" or str_ == "Algo" :
         return '2'
-    elif str_ == 'Quite a bit':
+    elif str_ == 'Quite a bit' or str_ == "较重" or str_ == "Relativamente grave" :
         return '3'
-    elif str_ == 'Severe':
+    elif str_ == 'Severe' or str_ == "严重" or str_ == "Severo" :
         return '4'
+    elif str_ == "Yes" or str_ == "是" or str_ == "Sí":
+        return '1'
+    elif str_ == "No" or str_ == "否":
+        return '0'
     else:
         return str_
 
@@ -79,25 +83,39 @@ class MyScrollableCheckboxFrame(ctk.CTkScrollableFrame):
         self.label_handles = []
         self.tooltip_handles = []
         self.output_labels = None
-        self.split = 4
         self.entries = []
         self.options = ["None", "A little", "Somewhat", "Quite a bit", "Severe"]
         self.font = font
         self.get_text = get_text
         self.lrow = 1
+        bg_color = self.cget("fg_color")
         for i, (label_text, suggestion) in enumerate(self.labels.items()):
             row, column = i // num_columns, i % num_columns
-            label = ctk.CTkLabel(self, text=get_text(label_text), font=self.font)
+            label_frame = ctk.CTkFrame(self, bg_color=bg_color)
+            label_frame.grid(row=row+1, column=column*2, padx=5, pady=5, sticky='w')
+            
+            label = ctk.CTkLabel(label_frame, text=get_text(label_text), font=self.font, bg_color=bg_color)
+            label.pack(side='left')
             self.label_handles.append(label)
-            label.grid(row=row+1, column=column*2, padx=5, pady=5, sticky='w')
+            
+            if i < 28:  # 前28项为必填
+                asterisk = ctk.CTkLabel(label_frame, text="*", font=("Helvetica", 20), text_color="red", bg_color=bg_color)
+                asterisk.pack(side='left')
+
             tooltip_text = self.instructions[i]
             tooltip = CreateToolTip(label, tooltip_text)
             self.tooltip_handles.append(tooltip)
             entry_var = ctk.StringVar(value=suggestion)
-            if i < self.split:
+            if i < 4:
+                entry = ctk.CTkEntry(self, textvariable=entry_var)
+            elif i < 28:
+                entry = ctk.CTkOptionMenu(self, variable=None, values=self.options)
+            elif i < 30:
+                entry = ctk.CTkOptionMenu(self, variable=None, values=['No', 'Yes'])
+            elif i < 32:
                 entry = ctk.CTkEntry(self, textvariable=entry_var)
             else:
-                entry = ctk.CTkOptionMenu(self, variable=None, values=self.options)
+                entry = ctk.CTkOptionMenu(self, variable=None, values=['No', 'Yes'])
             entry.grid(row=row+1, column=column*2+1, padx=5, pady=5, sticky='w')
 
             self.entries.append(entry)
@@ -119,8 +137,10 @@ class MyScrollableCheckboxFrame(ctk.CTkScrollableFrame):
             self.label_handles[i].configure(text=self.get_text(label_text))
         for i in range(len(self.instructions)):
             self.tooltip_handles[i].text = self.get_text(self.instructions[i])
-            if i >= self.split:
+            if i >= 4 and i < 28:
                 self.entries[i].configure(values=[self.get_text(option) for option in self.options])
+            elif i >= 28 and i < 30 or i >= 32:
+                self.entries[i].configure(values=[self.get_text(option) for option in ['No', 'Yes']])
     
 
 class PLOTFrame(ctk.CTkScrollableFrame):
