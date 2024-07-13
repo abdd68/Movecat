@@ -436,6 +436,10 @@ class App(ctk.CTk):
         self.update_texts()
 
     def update_texts(self):
+        self.menu_bar.entryconfig(1, label=self.get_text("Language"))
+        self.menu_bar.entryconfig(2, label=self.get_text("Help"))
+        self.help_menu.entryconfig(0, label=self.get_text("Instructions"))
+        self.help_menu.entryconfig(1, label=self.get_text("About"))
         for key, frame in self.frames.items():
             if key == 'Page3' and not self.frames["Page3"].constructed: # This page should not be updated initially, since it can not be initially constructed.
                 continue

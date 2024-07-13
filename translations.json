@@ -99,7 +99,11 @@
         "Somewhat": "Somewhat", 
         "Quite a bit": "Quite a bit", 
         "Severe": "Severe",
-        "In the detection page, detailed instructions are shown when you move the cursor🖱️ close to the words (for example, Your age (years)...).": "In the detection page, detailed instructions are shown when you move the cursor🖱️ close to the words (for example, Your age (years)...)."
+        "In the detection page, detailed instructions are shown when you move the cursor🖱️ close to the words (for example, Your age (years)...).": "In the detection page, detailed instructions are shown when you move the cursor🖱️ close to the words (for example, Your age (years)...).",
+        "Help": "Help",
+        "Language": "Language",
+        "Instructions": "Instructions",
+        "About": "About"
     
     },
     "Chinese": {
@@ -202,7 +206,11 @@
         "Somewhat": "有一些", 
         "Quite a bit": "较重", 
         "Severe": "严重",
-        "In the detection page, detailed instructions are shown when you move the cursor🖱️ close to the words (for example, Your age (years)...).": "在检测页面中，当您将光标🖱️移到靠近单词的地方(例如，年龄(年)…)时，将显示详细的说明。"
+        "In the detection page, detailed instructions are shown when you move the cursor🖱️ close to the words (for example, Your age (years)...).": "在检测页面中，当您将光标🖱️移到靠近单词的地方(例如，年龄(年)…)时，将显示详细的说明。",
+        "Help": "帮助",
+        "Language": "语言",
+        "Instructions": "说明",
+        "About": "关于"
     },
     "Spanish": {
         "title": "Sistema de Detección Temprana de Linfedema",
@@ -304,7 +312,11 @@
         "Somewhat": "algo", 
         "Quite a bit": "Relativamente grave", 
         "Severe": "Severo",
-        "In the detection page, detailed instructions are shown when you move the cursor🖱️ close to the words (for example, Your age (years)...).": "En la página de detección, se muestran instrucciones detalladas cuando mueve el cursor🖱️ cerca de las palabras (por ejemplo, su edad (años)...)."
+        "In the detection page, detailed instructions are shown when you move the cursor🖱️ close to the words (for example, Your age (years)...).": "En la página de detección, se muestran instrucciones detalladas cuando mueve el cursor🖱️ cerca de las palabras (por ejemplo, su edad (años)...).",
+        "Help": "Ayuda",
+        "Language": "Lengua",
+        "Instructions": "Instrucciones",
+        "About": "Acerca de"
     
     }
 }
