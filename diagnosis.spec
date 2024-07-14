@@ -13,7 +13,7 @@ a = Analysis(
     ['diagnosis_2.py'],
     pathex=[],
     binaries=[],
-    datas=[('models/GBT.pkl', 'models'), ('image/*', 'image'), ('translations.json', '.')] + sklearn_data_files,
+    datas=[('models/GBT.pkl', 'models'), ('image/*', 'image'), ('*.json', '.')] + sklearn_data_files,
     hiddenimports=collect_submodules('sklearn'),
     hookspath=[],
     runtime_hooks=[],
