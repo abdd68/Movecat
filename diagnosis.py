@@ -634,9 +634,14 @@ class App(ctk.CTk):
         self.update_texts()
 
     def update_texts(self):
-        self.menu_bar.entryconfig(1, label=self.get_text("Language"))
-        self.menu_bar.entryconfig(2, label=self.get_text("Account"))
-        self.menu_bar.entryconfig(3, label=self.get_text("Help"))
+        if os.name == 'nt':
+            self.menu_bar.entryconfig(1, label=self.get_text("Language"))
+            self.menu_bar.entryconfig(2, label=self.get_text("Account"))
+            self.menu_bar.entryconfig(3, label=self.get_text("Help"))
+        elif os.name == 'posix':
+            self.menu_bar.entryconfig(0, label=self.get_text("Language"))
+            self.menu_bar.entryconfig(1, label=self.get_text("Account"))
+            self.menu_bar.entryconfig(2, label=self.get_text("Help"))
         self.help_menu.entryconfig(0, label=self.get_text("Instructions"))
         self.help_menu.entryconfig(1, label=self.get_text("About"))
         self.account_menu.entryconfig(0, label=self.get_text("Login/Register"))
