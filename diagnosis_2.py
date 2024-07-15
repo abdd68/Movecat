@@ -290,19 +290,19 @@ class Pageabout(ctk.CTkFrame):
         self.about_text = ctk.CTkLabel(self, text=self.parent.get_text("about_text"), font=self.font, wraplength=700)
         self.about_text.grid(row=1, column=0, padx=25, columnspan=3, pady=10)
 
-        image = Image.open(os.path.join(basepath, "image\\UMKC.png")).resize((300, 300))
+        image = Image.open(os.path.join(basepath, "image", "UMKC.png")).resize((300, 300))
         tk_image = ImageTk.PhotoImage(image)
         self.image_label = ctk.CTkLabel(self, image=tk_image, text='')
         self.image_label.image = tk_image
         self.image_label.grid(row=2, column=0, padx=25, pady=10)
 
-        image2 = Image.open(os.path.join(basepath, "image\\UMD.jpg")).resize((225, 225))
+        image2 = Image.open(os.path.join(basepath, "image", "UMD.jpg")).resize((225, 225))
         tk_image2 = ImageTk.PhotoImage(image2)
         self.image_label2 = ctk.CTkLabel(self, image=tk_image2, text='')
         self.image_label2.image = tk_image2
         self.image_label2.grid(row=2, column=1, padx=25, pady=10)
 
-        image3 = Image.open(os.path.join(basepath, "image\\NYU.png")).resize((300, 300))
+        image3 = Image.open(os.path.join(basepath, "image", "NYU.png")).resize((300, 300))
         tk_image3 = ImageTk.PhotoImage(image3)
         self.image_label3 = ctk.CTkLabel(self, image=tk_image3, text='')
         self.image_label3.image = tk_image3
@@ -429,7 +429,7 @@ class Page3(ctk.CTkFrame):
 
         select_mask = ['ArmSwelling', 'BreastSwelling', 'Skin', 'DISCOMFORT', 'SYM_COUNT', 'ChestWallSwelling', 'Age', 'Mastectomy', 'Hormonal', 'TIME_LAPSE']
         data_select = np.array([[self.parent.output_labels[item] for item in select_mask]], dtype=float)
-        model_path = os.path.join(basepath, 'models\\GBT.pkl')
+        model_path = os.path.join(basepath, 'models' , 'GBT.pkl')
 
         with open(model_path, 'rb') as f:
             model = pickle.load(f)
@@ -662,7 +662,7 @@ if __name__ == '__main__':
     if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
         basepath = sys._MEIPASS
     else:
-        basepath = ""
+        basepath = os.path.abspath(".")
     app = App()
     app.protocol("WM_DELETE_WINDOW", sys.exit)
     app.mainloop()
