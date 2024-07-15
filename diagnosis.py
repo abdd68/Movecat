@@ -659,8 +659,10 @@ class App(ctk.CTk):
         self.show_frame("Page1")
         return
     
+import matplotlib
 if __name__ == '__main__':
     global basepath
+    matplotlib.use('Agg')
     if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
         basepath = sys._MEIPASS
     else:
