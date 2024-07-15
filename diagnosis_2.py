@@ -33,7 +33,7 @@ def get_translation(translations, lang, key):
 
 
 class CreateToolTip:
-    def __init__(self, widget, text, delay=420):
+    def __init__(self, widget, text, delay=450):
         self.widget = widget
         self.text = text
         self.tooltip = None
