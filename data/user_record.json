@@ -1,0 +1,41 @@
+{
+    "1": {
+        "suggestions": {
+            "Age (years)": "12",
+            "Time Lapse (years)": "1",
+            "Weight (Kg)": "12",
+            "Height (cm)": "123",
+            "Limited shoulder movement": "1",
+            "Limited elbow movement": "4",
+            "Limited wrist movement": "1",
+            "Limited fingers movement": "2",
+            "Limited arm movement": "0",
+            "Arm or hand swelling": "2",
+            "Breast swelling": "0",
+            "Chest swelling": "3",
+            "Toughness or thickness of skin": "1",
+            "Pain, aching, soreness": "3",
+            "Tightness": "1",
+            "Firmness": "3",
+            "Heaviness": "1",
+            "Numbness": "2",
+            "Burning": "2",
+            "Stabbing": "1",
+            "Tingling": "0",
+            "Fatigue": "0",
+            "Weakness": "2",
+            "Redness": "0",
+            "Hotness": "1",
+            "Stiffness": "0",
+            "Tenderness": "0",
+            "Blister": "1",
+            "Chemotherapy": "1",
+            "Radiation": "1",
+            "SLNB_Removed_LN": "1",
+            "ALND_Removed_LN": "1",
+            "Mastectomy": "0",
+            "Lumpectomy": "1",
+            "Hormonal therapy": "0"
+        }
+    }
+}
