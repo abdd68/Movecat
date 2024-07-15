@@ -427,7 +427,9 @@ class Page3(ctk.CTkFrame):
         self.page_label = ctk.CTkLabel(self, text=self.parent.get_text("detection_result"), font=self.font)
         self.page_label.grid(row=0, column=0, columnspan=num_columns*2, pady=25, sticky="nsew")
 
-        select_mask = ['ArmSwelling', 'BreastSwelling', 'Skin', 'DISCOMFORT', 'SYM_COUNT', 'ChestWallSwelling', 'Age', 'Mastectomy', 'Hormonal', 'TIME_LAPSE']
+        select_mask = ['Mobility', 'ArmSwelling', 'BreastSwelling', 'Skin', 'FHT', 'DISCOMFORT'\
+        , 'SYM_COUNT', 'ChestWallSwelling', 'Mastectomy', 'Lumpectomy'\
+        , 'TIME_LAPSE']
         data_select = np.array([[self.parent.output_labels[item] for item in select_mask]], dtype=float)
         model_path = os.path.join(basepath, 'models' , 'GBT.pkl')
 
