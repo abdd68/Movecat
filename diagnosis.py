@@ -93,7 +93,7 @@ class MyScrollableCheckboxFrame(ctk.CTkScrollableFrame):
             label = ctk.CTkLabel(label_frame, text=get_text(label_text), font=self.font, bg_color=bg_color)
             label.pack(side='left')
             self.label_handles.append(label)
-            if i < 28:  # 前28项为必填
+            if i < 35:  # 前28项为必填
                 asterisk = ctk.CTkLabel(label_frame, text="*", font=("Helvetica", 20), text_color="red", bg_color=bg_color)
                 asterisk.pack(side='left')
 
@@ -127,11 +127,13 @@ class MyScrollableCheckboxFrame(ctk.CTkScrollableFrame):
         self.grid_rowconfigure(0, weight=1)
 
     def get(self):
+        admit_page3 = True
         for i, (key, value) in enumerate(self.labels.items()):
             self.labels[key] = self.str2int(i, self.entries[i].get())
             if self.labels[key] is None:
+                admit_page3 = False
                 break
-        return self.labels
+        return self.labels, admit_page3
     
     def update_texts(self):
         self.configure(label_text=self.get_text(self.title))
@@ -145,7 +147,7 @@ class MyScrollableCheckboxFrame(ctk.CTkScrollableFrame):
                 self.entries[i].configure(values=[self.get_text(option) for option in ['No', 'Yes']])
     
     def str2int(self, i, str_):
-        if i < 28 and str_ == '-':
+        if i < 35 and (str_ == '-' or str_.strip() == ''):
             # 弹出警告窗口，并停止执行
             messagebox.showwarning(self.get_text("Incomplete Data"), self.get_text("Data not fully completed. Please fill in all required fields."))
             return None
@@ -242,7 +244,7 @@ class Page1(ctk.CTkFrame):
     def __init__(self, parent):
         super().__init__(parent)
         self.parent = parent
-        self.font = ("Helvetica", 16)
+        self.font = self.parent.font_list[0]
         self.construct()
 
     def construct(self):
@@ -280,7 +282,7 @@ class Pageabout(ctk.CTkFrame):
     def __init__(self, parent):
         super().__init__(parent)
         self.parent = parent
-        self.font = ("Helvetica", 16)
+        self.font = self.parent.font_list[0]
         self.create_widgets()
 
     def create_widgets(self):
@@ -325,8 +327,8 @@ class Pageabout(ctk.CTkFrame):
 class Page2(ctk.CTkFrame):
     def __init__(self, parent):
         super().__init__(parent)
-        self.font = ("Helvetica", 16)
         self.parent = parent
+        self.font = self.parent.font_list[0]
 
     def load_suggestions(self):
         with open(self.parent.record_data_path, 'r') as json_file:
@@ -351,7 +353,9 @@ class Page2(ctk.CTkFrame):
         self.scrollable_checkbox_frame.grid(row=1, column=0, padx=10, columnspan=2, pady=0, sticky="nsew")
 
         def on_button():
-            self.parent.labels = self.scrollable_checkbox_frame.get()
+            self.parent.labels, admit_page3 = self.scrollable_checkbox_frame.get()
+            if not admit_page3:
+                return
             data = {self.parent.current_user: {'suggestions': self.parent.labels}}
             self.save_suggestions(data)
             self.parent.output_labels = self.label_processing(self.parent.labels)
@@ -409,8 +413,8 @@ class Page2(ctk.CTkFrame):
 class Page3(ctk.CTkFrame):
     def __init__(self, parent):
         super().__init__(parent)
-        self.font = ("Helvetica", 16)
         self.parent = parent
+        self.font = self.parent.font_list[0]
         self.constructed = False
 
     def configure_grid(self):
@@ -462,8 +466,8 @@ class Page3(ctk.CTkFrame):
 class Pagechart(ctk.CTkFrame):
     def __init__(self, parent):
         super().__init__(parent)
-        self.font = ("Helvetica", 16)
         self.parent = parent
+        self.font = self.parent.font_list[0]
         self.create_widgets()
 
     def create_widgets(self):
@@ -488,29 +492,39 @@ class PageLogin(ctk.CTkFrame):
     def __init__(self, parent):
         super().__init__(parent)
         self.parent = parent
+        self.font = self.parent.font_list[0]
         self.construct()
 
     def construct(self):
-        self.label_username = ctk.CTkLabel(self, text="Username:")
+        self.label_username = ctk.CTkLabel(self, text="Username:", font=self.font)
         self.label_username.grid(row=0, column=1, padx=10, pady=50, sticky="e")
 
-        self.entry_username = ctk.CTkEntry(self)
+        self.entry_username = ctk.CTkEntry(self, font=self.font)
         self.entry_username.grid(row=0, column=2, padx=10, pady=10, sticky="w")
 
-        self.label_password = ctk.CTkLabel(self, text="Password:")
+        self.label_password = ctk.CTkLabel(self, text="Password:", font=self.font)
         self.label_password.grid(row=1, column=1, padx=10, pady=10, sticky="e")
 
-        self.entry_password = ctk.CTkEntry(self)
+        self.entry_password = ctk.CTkEntry(self, font=self.font)
         self.entry_password.grid(row=1, column=2, padx=10, pady=10, sticky="w")
 
-        self.button_login = ctk.CTkButton(self, text="Login", command=self.login)
+        self.button_login = ctk.CTkButton(self, text="Login", command=self.login, font=self.font)
         self.button_login.grid(row=2, column=1, columnspan=2, padx=20, pady=10)
 
-        self.button_register = ctk.CTkButton(self, text="Register", command=self.register)
+        self.button_register = ctk.CTkButton(self, text="Register", command=self.register, font=self.font)
         self.button_register.grid(row=3, column=1, columnspan=2, padx=10, pady=10)
         
-        self.back_button = ctk.CTkButton(self, text=self.parent.get_text("return"), command=lambda: self.parent.show_frame("Page1"))
+        self.back_button = ctk.CTkButton(self, text="return", command=lambda: self.parent.show_frame("Page1"), font=self.font)
         self.back_button.grid(row=4, column=1, columnspan=2, pady=10)
+
+        self.update_texts()
+
+    def update_texts(self):
+        self.label_username.configure(text=self.parent.get_text("Username:"))
+        self.label_password.configure(text=self.parent.get_text("Password:"))
+        self.button_login.configure(text=self.parent.get_text("Login"))
+        self.button_register.configure(text=self.parent.get_text("Register"))
+        self.back_button.configure(text=self.parent.get_text("return"))
     
     def configure_grid(self):
         for row in range(5):
@@ -523,23 +537,23 @@ class PageLogin(ctk.CTkFrame):
         password = self.entry_password.get()
         if username in self.parent.user_data and self.parent.user_data[username] == password:
             self.parent.current_user = username
-            messagebox.showinfo("Login", "Login successful")
+            messagebox.showinfo(self.parent.get_text("Login"), self.parent.get_text("Login successful"))
             self.parent.update_login_label()
             self.parent.show_frame("Page1")
         else:
-            messagebox.showerror("Login", "Invalid username or password: your username or password is incorrect.")
+            messagebox.showerror(self.parent.get_text("Login"), self.parent.get_text("Invalid username or password: your username or password is incorrect."))
 
     def register(self):
         username = self.entry_username.get()
         password = self.entry_password.get()
         if username in self.parent.user_data:
-            messagebox.showerror("Register", "Username already exists")
+            messagebox.showerror(self.parent.get_text("Register"), self.parent.get_text("Username already exists"))
         elif username.strip() == '' or password.strip() == '':
-            messagebox.showerror("Register", "Invalid username or password: can NOT be empty.")
+            messagebox.showerror(self.parent.get_text("Register"), self.parent.get_text("Invalid username or password: can NOT be empty."))
         else:
             self.parent.user_data[username] = password
             save_user_data(self.parent.user_data_path, self.parent.user_data)
-            messagebox.showinfo("Register", "Registration successful, please login next.")
+            messagebox.showinfo(self.parent.get_text("Register"), self.parent.get_text("Registration successful, please login next."))
 
 class App(ctk.CTk):
     def __init__(self):
@@ -549,7 +563,7 @@ class App(ctk.CTk):
         self.user_data_path = os.path.join(basepath, "data", "user_data.json")
         self.user_data = load_user_data(self.user_data_path)
         self.record_data_path = os.path.join(basepath, "data", "user_record.json")
-        self.font = ("Helvetica", 16)
+        self.font_list = [("Helvetica", 16)]
         self.lang = 'English'
         self.current_user = None
         self.labels = OrderedDict({ 'Age (years)': '40', 'Time Lapse (years)': '1', 'Weight (Kg)': '60', 'Height (cm)': '170', 'Limited shoulder movement': "0",\
@@ -563,26 +577,26 @@ class App(ctk.CTk):
         ctk.set_appearance_mode("light")
         self.title(self.get_text("title"))
         self.geometry("800x600")
-        self.menu_bar = tk.Menu(self, font=self.font)
+        self.menu_bar = tk.Menu(self, font=self.font_list[0])
         self.config(menu=self.menu_bar)
         # language_menu
-        self.language_menu = tk.Menu(self.menu_bar, tearoff=0, font=self.font)
+        self.language_menu = tk.Menu(self.menu_bar, tearoff=0, font=self.font_list[0])
         self.menu_bar.add_cascade(label="Language", menu=self.language_menu)
         languages = ["English (English)", "Chinese (简体中文)", "Spanish (Español)"]
         for language in languages:
             self.language_menu.add_command(label=language, command=lambda lang=language: self.set_language(lang))
         # Account menu
-        self.account_menu = tk.Menu(self.menu_bar, tearoff=0, font=self.font)
+        self.account_menu = tk.Menu(self.menu_bar, tearoff=0, font=self.font_list[0])
         self.menu_bar.add_cascade(label="Account", menu=self.account_menu)
         self.account_menu.add_command(label='Login/Register', command=lambda: self.show_frame("PageLogin"))
         self.account_menu.add_command(label='Logout', command=lambda: self.logout())
         if self.current_user is not None:
-            self.account_menu.add_command(label=f'Login as: {self.current_user}')
+            self.account_menu.add_command(label='Login as:' + self.current_user)
         else:
             self.account_menu.add_command(label=f'You are logged out')
 
         # Help menu
-        self.help_menu = tk.Menu(self.menu_bar, tearoff=0, font=self.font)
+        self.help_menu = tk.Menu(self.menu_bar, tearoff=0, font=self.font_list[0])
         self.menu_bar.add_cascade(label="Help", menu=self.help_menu)
         self.help_menu.add_command(label="Instructions", command=self.show_instructions)
         self.help_menu.add_command(label="About", command=lambda: self.show_frame("Pageabout"))
@@ -622,9 +636,9 @@ class App(ctk.CTk):
         self.account_menu.delete(2)
         # Add the updated command
         if self.current_user is not None:
-            self.account_menu.add_command(label=f'Login as: {self.current_user}')
+            self.account_menu.add_command(label=self.get_text('Login as: ')+ self.current_user)
         else:
-            self.account_menu.add_command(label=f'You are logged out')
+            self.account_menu.add_command(label=self.get_text('You are logged out'))
 
     def get_text(self, key):
         return get_translation(self.translations, self.lang, key)
@@ -646,6 +660,10 @@ class App(ctk.CTk):
         self.help_menu.entryconfig(1, label=self.get_text("About"))
         self.account_menu.entryconfig(0, label=self.get_text("Login/Register"))
         self.account_menu.entryconfig(1, label=self.get_text("Logout"))
+        if self.current_user is not None:
+            self.account_menu.entryconfig(2, label=self.get_text("Login as: ") + self.current_user)
+        else:
+            self.account_menu.entryconfig(2, label=self.get_text("You are logged out"))
         for key, frame in self.frames.items():
             if hasattr(frame, "remove") and callable(getattr(frame, "remove")):
                 frame.remove()

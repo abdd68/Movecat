@@ -113,7 +113,18 @@
         "Not login": "Not login",
         "Logout": "Logout",
         "Logout sccessfully.": "Logout sccessfully.",
-        "Account":"Account"
+        "Account":"Account",
+        "Username:": "Username:",
+        "Password:": "Password:",
+        "Login": "Login",
+        "Register": "Register",
+        "Login successful": "Login successful",
+        "Invalid username or password: your username or password is incorrect.": "Invalid username or password: your username or password is incorrect.",
+        "Username already exists": "Username already exists",
+        "Invalid username or password: can NOT be empty.": "Invalid username or password: can NOT be empty.",
+        "Registration successful, please login next.": "Registration successful, please login next.",
+        "Login as: ":"Login as: ",
+        "You are logged out": "You are logged out"
     
     },
     "Chinese": {
@@ -230,7 +241,18 @@
         "Not login": "未登录",
         "Logout": "注销",
         "Logout sccessfully.": "注销成功！",
-        "Account": "账户"
+        "Account": "账户",
+        "Username:": "用户名：",
+        "Password:": "密码：",
+        "Login": "登录",
+        "Register": "注册",
+        "Login successful": "登录成功",
+        "Invalid username or password: your username or password is incorrect.": "无效的用户名或密码：您的用户名或密码不正确。",
+        "Username already exists": "用户名已存在",
+        "Invalid username or password: can NOT be empty.": "无效的用户名或密码：不能为空。",
+        "Registration successful, please login next.": "注册成功，请登录。",
+        "Login as: ": "登录为：",
+        "You are logged out": "您未登录"
     },
     "Spanish": {
         "title": "Sistema de Detección Temprana de Linfedema",
@@ -346,7 +368,18 @@
         "Not login": "No iniciar sesión",
         "Logout": "Cerrar sesión",
         "Logout sccessfully.": "Cierre de sesión exitoso.",
-        "Account": "Cuenta"
+        "Account": "Cuenta",
+        "Username:": "Nombre de usuario:",
+        "Password:": "Contraseña:",
+        "Login": "Iniciar sesión",
+        "Register": "Registrarse",
+        "Login successful": "Inicio de sesión exitoso",
+        "Invalid username or password: your username or password is incorrect.": "Nombre de usuario o contraseña incorrectos: su nombre de usuario o contraseña es incorrecto.",
+        "Username already exists": "El nombre de usuario ya existe",
+        "Invalid username or password: can NOT be empty.": "Nombre de usuario o contraseña incorrectos: no pueden estar vacíos.",
+        "Registration successful, please login next.": "Registro exitoso, por favor inicie sesión.",
+        "Login as: ": "Iniciar sesión como: ",
+        "You are logged out": "Has cerrado sesión"
     
     }
 }
