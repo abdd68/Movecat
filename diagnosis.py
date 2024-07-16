@@ -4,7 +4,6 @@ import numpy as np
 from collections import OrderedDict
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
-from matplotlib.pylab import mpl
 from PIL import Image, ImageTk
 import sys
 import os
@@ -201,29 +200,36 @@ class MyScrollableCheckboxFrame(ctk.CTkScrollableFrame):
         else:
             return int_
     
-
 class PLOTFrame(ctk.CTkScrollableFrame):
     def __init__(self, master=None, title=None, font=None, get_text=None):
-        super().__init__(master, width=720, height=330, label_text=get_text(title))
+        super().__init__(master, width=720, height=400, label_text=get_text(title))
         self.master = master
-        self.create_matplotlib()
-        self.createWidget(self.figure)
+        self.create_figure3()
+        self.create_figure1()
+        self.create_figure2()
+        self.createWidget()
         self.font = font
 
-    def createWidget(self, figure):
-        self.canvas = FigureCanvasTkAgg(figure, self)
+    def createWidget(self):
+        self.canvas = FigureCanvasTkAgg(plt.figure(num=1), self)
+        self.canvas.draw()
+        self.canvas.get_tk_widget().pack(side='top', fill='both', expand=1)
+        self.canvas = FigureCanvasTkAgg(plt.figure(num=2), self)
+        self.canvas.draw()
+        self.canvas.get_tk_widget().pack(side='top', fill='both', expand=1)
+        self.canvas = FigureCanvasTkAgg(plt.figure(num=3), self)
         self.canvas.draw()
         self.canvas.get_tk_widget().pack(side='top', fill='both', expand=1)
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
 
-    def create_matplotlib(self):
-        mpl.rcParams['font.sans-serif'] = ['SimHei']
-        mpl.rcParams['axes.unicode_minus'] = False
-        self.figure = plt.figure(num=2, figsize=(7, 9), dpi=80, facecolor="white", edgecolor='Teal', frameon=True)
-        font = {'family': 'serif', 'serif': 'Times New Roman', 'weight': 'normal', 'size': 20}
+    def create_figure3(self):
+        plt.rcParams['font.sans-serif'] = ['SimHei']
+        plt.rcParams['axes.unicode_minus'] = False
+        plt.figure(num=3, figsize=(7, 9), dpi=80, facecolor="white", edgecolor='Teal', frameon=True)
+        font = {'family': 'serif', 'serif': 'Times New Roman', 'weight': 'normal', 'size': 22}
         plt.rc('font', **font)
-        plt.title('GBT weight', fontdict={'family': 'Times New Roman', 'weight': 'normal', 'size': 28}, pad=12)
+        plt.title('Important factors contributing to Lymphedema', fontdict={'family': 'Times New Roman', 'weight': 'normal', 'size': 32}, pad=20)
         plt.yscale('symlog', linthresh=0.00005)
         plt.tick_params(axis='x', labelsize=18, rotation=60)
         plt.tick_params(axis='y', labelsize=18)
@@ -232,13 +238,67 @@ class PLOTFrame(ctk.CTkScrollableFrame):
         y = [item[1] for item in data]
         loc = zip(x, y)
         plt.ylim(0, 1)
-        plt.bar(x, y, facecolor='Teal', edgecolor='black')
+        plt.bar(x, y, facecolor='Teal')
+        plt.xticks(fontsize = 24)
+        plt.yticks(fontsize = 24)
         for x, y in loc:
-            plt.text(x, y, '%.1g' % y, ha='center', va='bottom')
-        plt.tight_layout(rect=[0, 0, 1, 0.95])
+            plt.text(x, y, '%.1g' % y, ha='center', va='bottom', fontdict={'family': 'Times New Roman', 'weight': 'normal', 'size': 24})
+        plt.tight_layout()
+
+    def create_figure1(self):
+        y_pred = self.master.parent.y_pred.squeeze()
+        weights = np.array([0, 50, 100])  # 权重
+        # 计算整体风险评分
+        overall_score = np.dot(y_pred, weights)
+        # 创建一个Figure
+        plt.figure(num = 1, figsize=(8, 2.5), dpi=100)
+
+        # 创建分段渐变条
+        plt.title('Lymphedema risk score', pad = 20)
+        gradient = np.linspace(0, 1, 1000).reshape(1, -1)
+        plt.imshow(gradient, aspect='auto', cmap='RdYlGn_r', extent=[0, 100, 0, 1])
+
+        # 绘制风险评分的指示线
+        plt.axvline(overall_score, color='black', linewidth=2)
+        plt.text(overall_score, 0.5, f'{overall_score:.2f}', color='black', va='center', ha='center', backgroundcolor='white')
+
+        # 设置图形标题和标签
+        plt.gca().set_yticks([])
+        plt.gca().set_xlim(0, 100)
+        plt.tight_layout() 
+    
+    def create_figure2(self):
+        y_pred = self.master.parent.y_pred.squeeze()
+        # 创建一个Figure
+        plt.figure(num = 2, figsize=(8, 3), dpi=100)
+        plt.title('Predicted possibility of your Lymphedema stage', pad = 20)
+        # 创建分段条形
+        start = 0
+        labels = ['low_risk', 'mild', 'moderate/severe']
+        colors = ['green', 'yellow', 'red']
+        
+        for i, (probability, label, color) in enumerate(zip(y_pred, labels, colors)):
+            plt.barh(0.5, probability * 100, left=start, height=1, color=color)
+            start += probability * 100
+
+        # 去掉刻度
+        plt.gca().set_yticks([])
+        plt.gca().set_xticks([])
+        plt.gca().margins(x=0, y=0.01)
+        # for spine in plt.gca().spines.values():
+        #     spine.set_visible(False) # 删除边框
+        # 创建一个图例
+        legend_texts = [f'{label}: {probability:.2%}' for label, probability in zip(labels, y_pred)]
+        legend_labels = [f'{label}: {probability:.2%}' for label, probability in zip(labels, y_pred)]
+        legend_colors = dict(zip(legend_labels, colors))
+
+        handles = [plt.Rectangle((0, 0), 1, 1, color=legend_colors[label]) for label in legend_labels]
+        plt.legend(handles, legend_texts, loc='upper center', bbox_to_anchor=(0.5, -0.05), ncol=len(labels))
+        plt.tight_layout() 
 
     def destroy(self):
-        self.figure.clf()
+        plt.close('all')
+
 
 class Page1(ctk.CTkFrame):
     def __init__(self, parent):
@@ -331,17 +391,27 @@ class Page2(ctk.CTkFrame):
         self.font = self.parent.font_list[0]
 
     def load_suggestions(self):
-        with open(self.parent.record_data_path, 'r') as json_file:
-            json_data = json.load(json_file, object_pairs_hook=OrderedDict)
-            if self.parent.current_user in json_data:
-                data = json_data[self.parent.current_user]['suggestions']
-            else:
-                data = None
-            return data
+        if os.path.exists(self.parent.record_data_path):
+            with open(self.parent.record_data_path, 'r') as json_file:
+                json_data = json.load(json_file, object_pairs_hook=OrderedDict)
+                if self.parent.current_user in json_data:
+                    data = json_data[self.parent.current_user]['suggestions']
+                else:
+                    data = None
+                return data
+        else:
+            return {}
         
     def save_suggestions(self, data):
+        if os.path.exists(self.parent.record_data_path):
+            with open(self.parent.record_data_path, 'r') as json_file:
+                existing_data = json.load(json_file)
+        else:
+            existing_data = {}  # 如果文件不存在，初始化为空字典
+        for key, value in data.items():
+            existing_data[key] = value
         with open(self.parent.record_data_path, 'w') as json_file:
-            json.dump(data, json_file, indent=4)
+            json.dump(existing_data, json_file, indent=4)
 
     def construct(self):
         suggestions = self.load_suggestions()
@@ -393,7 +463,7 @@ class Page2(ctk.CTkFrame):
         output_labels['Age'] = labels['Age (years)']
         output_labels['TIME_LAPSE'] = math.log(float(labels['Time Lapse (years)']))
         output_labels['Mobility'] = max(int(labels['Limited shoulder movement']), int(labels['Limited elbow movement']), int(labels['Limited wrist movement']), int(labels['Limited fingers movement']), int(labels['Limited arm movement']))
-        output_labels['Armswelling'] = labels['Arm or hand swelling']
+        output_labels['ArmSwelling'] = labels['Arm or hand swelling']
         output_labels['BreastSwelling'] = labels['Breast swelling']
         output_labels['Skin'] = labels['Toughness or thickness of skin']
         output_labels['PAS'] = labels['Pain, aching, soreness']
@@ -429,7 +499,7 @@ class Page3(ctk.CTkFrame):
             self.constructed = True
         num_columns = 1
         self.page_label = ctk.CTkLabel(self, text=self.parent.get_text("detection_result"), font=self.font)
-        self.page_label.grid(row=0, column=0, columnspan=num_columns*2, pady=25, sticky="nsew")
+        self.page_label.grid(row=0, column=0, columnspan=num_columns*2, pady=25, sticky="ew")
 
         select_mask = ['Mobility', 'ArmSwelling', 'BreastSwelling', 'Skin', 'FHT', 'DISCOMFORT'\
         , 'SYM_COUNT', 'ChestWallSwelling', 'Mastectomy', 'Lumpectomy'\
@@ -439,10 +509,11 @@ class Page3(ctk.CTkFrame):
 
         with open(model_path, 'rb') as f:
             model = pickle.load(f)
-        y_pred = model.predict(data_select)
+        y_pred = model.predict_proba(data_select)
+        max_label = np.argmax(y_pred)
+        self.parent.y_pred = y_pred
         re_dict = {0: self.parent.get_text("low_risk"), 1: self.parent.get_text("mild"), 2: self.parent.get_text("moderate_severe")}
-
-        self.text_result = self.parent.get_text("your_predicted_lymphedema_risk").format(risk=re_dict[y_pred.item()])
+        self.text_result = self.parent.get_text("your_predicted_lymphedema_risk").format(risk=re_dict[max_label])
         self.gbt_result = ctk.CTkLabel(self, text=self.text_result, font=self.font) # text_result -> gbt_result
         self.gbt_result.grid(row=1, columnspan=2)
 
@@ -463,14 +534,14 @@ class Page3(ctk.CTkFrame):
         self.plot_button.configure(text=self.parent.get_text("plot_bar_chart"))
         self.back_button.configure(text=self.parent.get_text("return"))
 
+
 class Pagechart(ctk.CTkFrame):
     def __init__(self, parent):
         super().__init__(parent)
         self.parent = parent
         self.font = self.parent.font_list[0]
-        self.create_widgets()
 
-    def create_widgets(self):
+    def construct(self):
         self.page_label = ctk.CTkLabel(self, text=self.parent.get_text("plot_bar_chart"), font=self.font)
         self.page_label.grid(row=0, column=0, pady=20, sticky="nsew")
         self.plot_frame = PLOTFrame(master=self, font=self.font, title="plot_bar_chart", get_text=self.parent.get_text)
@@ -487,6 +558,10 @@ class Pagechart(ctk.CTkFrame):
     def update_texts(self):
         self.page_label.configure(text=self.parent.get_text("plot_bar_chart"))
         self.back_button.configure(text=self.parent.get_text("return"))
+
+    def remove(self):
+        for widget in self.winfo_children():
+            widget.destroy()
 
 class PageLogin(ctk.CTkFrame):
     def __init__(self, parent):
@@ -537,7 +612,7 @@ class PageLogin(ctk.CTkFrame):
         password = self.entry_password.get()
         if username in self.parent.user_data and self.parent.user_data[username] == password:
             self.parent.current_user = username
-            messagebox.showinfo(self.parent.get_text("Login"), self.parent.get_text("Login successful"))
+            # messagebox.showinfo(self.parent.get_text("Login"), self.parent.get_text("Login successful")) # !!!
             self.parent.update_login_label()
             self.parent.show_frame("Page1")
         else:
@@ -566,6 +641,7 @@ class App(ctk.CTk):
         self.font_list = [("Helvetica", 16)]
         self.lang = 'English'
         self.current_user = None
+        self.y_pred = None
         self.labels = OrderedDict({ 'Age (years)': '40', 'Time Lapse (years)': '1', 'Weight (Kg)': '60', 'Height (cm)': '170', 'Limited shoulder movement': "0",\
                                     'Limited elbow movement': "0", 'Limited wrist movement': "0", 'Limited fingers movement': "0", 'Limited arm movement': "0", 'Arm or hand swelling': "0",\
                                     'Breast swelling': "0", 'Chest swelling': "0", 'Toughness or thickness of skin': "0", 'Pain, aching, soreness': "0", 'Tightness': "0", 'Firmness': "0",\
@@ -576,7 +652,7 @@ class App(ctk.CTk):
         self.output_labels = OrderedDict({'BMI': "22.1", 'Age': "40", 'TIME_LAPSE': "1", 'Mobility': "1", 'ArmSwelling': "0", 'BreastSwelling': "0", 'Skin': "0", 'PAS': "0", 'FHT': "1", 'DISCOMFORT': "0", 'SYM_COUNT': "2", 'ChestWallSwelling': "0", 'Chemotherapy': "1", 'Radiation': "0", 'Number_nodes': "1", 'Mastectomy': "1", 'Lumpectomy': "0", 'Hormonal': "0"})
         ctk.set_appearance_mode("light")
         self.title(self.get_text("title"))
-        self.geometry("800x600")
+        self.geometry("800x700")
         self.menu_bar = tk.Menu(self, font=self.font_list[0])
         self.config(menu=self.menu_bar)
         # language_menu
