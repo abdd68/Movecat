@@ -514,6 +514,7 @@ class Page2(ctk.CTkFrame):
         self.parent = parent
         self.font = self.parent.font_list[0]
         self.reset_flag = False
+        self.constructed = False
 
     def load_suggestions(self):
         if os.path.exists(self.parent.record_data_path):
@@ -538,6 +539,8 @@ class Page2(ctk.CTkFrame):
             json.dump(existing_data, json_file, indent=4)
 
     def construct(self):
+        if not self.constructed:
+            self.constructed = True
         if self.reset_flag:
             suggestions = None
         else:
@@ -687,8 +690,11 @@ class Pagechart(ctk.CTkFrame):
         super().__init__(parent)
         self.parent = parent
         self.font = self.parent.font_list[0]
+        self.constructed = False
 
     def construct(self):
+        if not self.constructed:
+            self.constructed = True
         self.page_label = ctk.CTkLabel(self, text=self.parent.get_text("plot_bar_chart"), font=self.font)
         self.page_label.grid(row=0, column=0, pady=20, sticky="nsew")
         self.plot_frame = PLOTFrame(self, font=self.font, get_text=self.parent.get_text, fg_color = 'white')
@@ -928,6 +934,8 @@ class App(ctk.CTk):
             self.account_menu.entryconfig(2, label=self.get_text("You are logged out"))
         for key, frame in self.frames.items():
             if hasattr(frame, "remove") and callable(getattr(frame, "remove")):
+                if hasattr(frame, "constructed") and not frame.constructed:
+                    continue
                 frame.remove()
                 frame.construct()
             if hasattr(frame, "update_texts") and callable(getattr(frame, "update_texts")):
