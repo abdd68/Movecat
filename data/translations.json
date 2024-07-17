@@ -14,7 +14,7 @@
         "mild": "Mild",
         "moderate_severe": "Moderate/Severe",
         "moderate/severe": "Moderate/Severe",
-        "plot_bar_chart": "Plot Bar Chart",
+        "visualized diagnosis": "Visualized diagnosis",
         "your_predicted_lymphedema_risk": "Your predicted Lymphedema risk is: {risk}.",
         "Your predicted Lymphedema risk is: Low risk.": "Your predicted Lymphedema risk is: Low risk.",
         "Your predicted Lymphedema risk is: Mild.": "Your predicted Lymphedema risk is: Mild.",
@@ -159,7 +159,18 @@
         "Changing the fontsize will restart the system. Make sure the data is saved.": "Changing the fontsize will restart the system. Make sure the data is saved.",
         "Data saved!": "Data saved!",
         "Confirmation": "Confirmation",
-        "Are you sure you want to reset? This will clear your reported symptoms.": "Are you sure you want to reset? This will clear your reported symptoms."
+        "Are you sure you want to reset? This will clear your reported symptoms.": "Are you sure you want to reset? This will clear your reported symptoms.",
+        "diag_low_risk": "Suggestions: \n\nFor individuals at low risk for lymphedema, it's essential to stay informed about the condition and its early symptoms, such as swelling or skin changes. \n\nMaintain a healthy weight through balanced diet and regular exercise, keep your skin moisturized and protected from injuries, and avoid heavy lifting or activities that strain your limbs. Use compression garments when recommended and be cautious with extreme temperatures. Regularly monitor for any changes and consult your healthcare provider promptly if symptoms develop.",
+        "diag_mild": "Suggestions: \n\nFor individuals with mild lymphedema, it is crucial to manage your condition through regular monitoring and lifestyle adjustments. \n\nMaintain a healthy weight with a balanced diet and regular exercise, and practice diligent skin care to prevent infections. Use compression garments as recommended by your healthcare provider to support lymphatic function. Avoid activities that excessively strain the affected limb and be cautious with extreme temperatures. Regular follow-ups with your healthcare provider are essential to monitor the condition and ensure timely intervention if symptoms progress.",
+        "diag_moderate_severe": "Suggestions: \n\nFor individuals with moderate to severe lymphedema, comprehensive management is crucial. \n\nAdhere to a regimen that includes consistent use of compression garments, regular lymphatic drainage massages, and physical therapy exercises tailored to improve lymph flow. Maintain rigorous skin care to prevent infections and avoid cuts and burns. Monitor your condition closely and keep regular appointments with your healthcare provider to track progress and adjust treatments as needed. Limit activities that put excessive strain on the affected area and be mindful of temperature extremes. Early and proactive intervention is key to managing symptoms and improving quality of life.",
+        "This is your first time detecting Lymphedema. Keep on excercising and let us see your progress!": "Comments: \n\nThis is your first time detecting Lymphedema. Keep on excercising and let us see your progress!",
+        "This is your first time detecting Lymphedema. Keep on the good record!": "Comments: \n\nThis is your first time detecting Lymphedema. Keep on the good record!",
+        "Your detection result shows low risk, keep on the good record!": "Comments: \n\nYour detection result shows low risk, keep on the good record!",
+        "Your detection result requires further inspection, please advice the doctors for further help. Keep on excercising and let us see your progress!": "Comments: \n\nYour detection result requires further inspection, please advice the doctors for further help. Keep on excercising and let us see your progress!",
+        "Your detection result does not change since the last time. Keep on excercising and let us see your progress!": "Comments: \n\nYour detection result does not change since the last time. Keep on excercising and let us see your progress!",
+        "Congratulations! Your detection result is much better than your last time. Keep on the good record!": "Comments: \n\nCongratulations! Your detection result is much better than your last time. Keep on the good record!",
+        "Congratulations! Your detection result is better than your last time. Keep on excercising and keep on the good record!": "Comments: \n\nCongratulations! Your detection result is better than your last time. Keep on excercising and keep on the good record!",
+        "recommendation":"\n\nTo finalize the diagnosis, we recommend you to proceed to visualized diagnosis (press the bottom left button), to access your detailed lymphedema risk score, the probabilities of lymphedema stage, your diagnosis history and factors influencing lymphedema."
     },
     "Chinese": {
         "title": "淋巴水肿早期检测系统",
@@ -176,7 +187,7 @@
         "mild": "轻度",
         "moderate_severe": "中度/重度",
         "moderate/severe": "中度/重度",
-        "plot_bar_chart": "绘制柱状图",
+        "visualized diagnosis": "可视化诊断",
         "your_predicted_lymphedema_risk": "您预测的淋巴水肿风险是: {risk}。",
         "Your predicted Lymphedema risk is: Low risk.": "您预测的淋巴水肿风险是: 低风险。",
         "Your predicted Lymphedema risk is: Mild.": "您预测的淋巴水肿风险是: 轻度。",
@@ -321,7 +332,18 @@
         "Changing the fontsize will restart the system. Make sure the data is saved.": "改变字体大小将会重启系统。请确保数据已保存。",
         "Data saved!": "数据已保存！",
         "Confirmation": "确认",
-        "Are you sure you want to reset? This will clear your reported symptoms.": "您确定要重置吗？这将清除您报告的症状。"
+        "Are you sure you want to reset? This will clear your reported symptoms.": "您确定要重置吗？这将清除您报告的症状。",
+        "diag_low_risk": "建议：\n\n  对于低风险淋巴水肿群体，至关重要的是了解这种情况及其早期症状，如肿胀或皮肤变化。通过均衡饮食和定期锻炼保持健康体重，保持皮肤湿润并保护其免受伤害，避免过重的体力劳动或使肢体过度劳累的活动。当推荐时，使用压缩衣物，并谨慎应对极端温度。定期监测任何变化，如果出现症状，及时咨询您的医疗提供者。",
+        "diag_mild": "建议：\n\n  对于轻度淋巴水肿患者，关键在于通过定期监测和生活方式调整来管理您的状况。保持健康体重，均衡饮食和定期锻炼，勤于皮肤护理以预防感染。按医疗提供者的建议使用压缩衣物以支持淋巴功能。避免过度劳累受影响的肢体，并注意极端温度。定期随访您的医疗提供者，以监测状况并确保症状进展时能及时干预。",
+        "diag_moderate_severe": "建议：\n\n  对于中度至重度淋巴水肿患者，综合管理至关重要。坚持使用压缩衣物，定期进行淋巴引流按摩和物理治疗锻炼以改善淋巴流动。保持严格的皮肤护理以预防感染，并避免割伤和烧伤。密切监测您的状况，定期预约您的医疗提供者以跟踪进展并根据需要调整治疗。限制对受影响区域施加过大压力的活动，并注意极端温度。早期和主动的干预是管理症状和改善生活质量的关键。",
+        "This is your first time detecting Lymphedema. Keep on excercising and let us see your progress!": "解释：\n\n  这是您第一次检测淋巴水肿。继续锻炼，让我们看看您的进展！",
+        "This is your first time detecting Lymphedema. Keep on the good record!": "解释：\n\n  这是您第一次检测淋巴水肿。保持良好的记录！",
+        "Your detection result shows low risk, keep on the good record!": "解释：\n\n  您的检测结果显示低风险，保持良好的记录！",
+        "Your detection result requires further inspection, please advice the doctors for further help. Keep on excercising and let us see your progress!": "解释：\n\n  您的检测结果需要进一步检查，请咨询医生以获得进一步帮助。继续锻炼，让我们看看您的进展！",
+        "Your detection result does not change since the last time. Keep on excercising and let us see your progress!": "解释：\n\n  您的检测结果自上次以来没有变化。继续锻炼，让我们看看您的进展！",
+        "Congratulations! Your detection result is much better than your last time. Keep on the good record!": "解释：\n\n  恭喜！您的检测结果比上次好了很多。保持良好的记录！",
+        "Congratulations! Your detection result is better than your last time. Keep on excercising and keep on the good record!": "解释：\n\n  恭喜！您的检测结果比上次更好。继续锻炼并保持良好的记录！",
+        "recommendation":"\n\n为完善诊断结果，我们建议您进行可视化诊断（按左下角的按钮），以访问详细的淋巴水肿风险评分、淋巴水肿阶段的概率、您的诊断历史和影响淋巴水肿的因素。"
         
     },
     "Spanish": {
@@ -339,7 +361,7 @@
         "mild": "Leve",
         "moderate_severe": "Moderado/Severo",
         "moderate/severe": "Moderado/Severo",
-        "plot_bar_chart": "Graficar Barra",
+        "visualized diagnosis": "Diagnóstico visualizado",
         "your_predicted_lymphedema_risk": "Su riesgo de linfedema predicho es: {risk}.",
         "Your predicted Lymphedema risk is: Low risk.": "Su riesgo de linfedema predicho es: Bajo riesgo.",
         "Your predicted Lymphedema risk is: Mild.": "Su riesgo de linfedema predicho es: Leve.",
@@ -484,7 +506,17 @@
         "Changing the fontsize will restart the system. Make sure the data is saved.": "Cambiar el tamaño de la fuente reiniciará el sistema. Asegúrate de que los datos estén guardados.",
         "Data saved!": "¡Datos guardados!",
         "Confirmation": "Confirmación",
-        "Are you sure you want to reset? This will clear your reported symptoms.": "¿Estás seguro de que quieres restablecer? Esto borrará tus síntomas reportados."
-    
+        "Are you sure you want to reset? This will clear your reported symptoms.": "¿Estás seguro de que quieres restablecer? Esto borrará tus síntomas reportados.",
+        "diag_low_risk": "Sugerencias  \n\nPara las personas con bajo riesgo de linfedema, es esencial estar informados sobre la condición y sus síntomas tempranos, como la hinchazón o los cambios en la piel. Mantén un peso saludable mediante una dieta equilibrada y ejercicio regular, mantiene la piel hidratada y protegida de lesiones, y evita levantar objetos pesados o hacer actividades que tensionen tus extremidades. Usa prendas de compresión cuando se recomienden y ten cuidado con las temperaturas extremas. Monitorea regularmente cualquier cambio y consulta a tu proveedor de atención médica rápidamente si desarrollas síntomas.",
+        "diag_mild": "Sugerencias  \n\nPara las personas con linfedema leve, es crucial manejar su condición mediante una monitorización regular y ajustes en el estilo de vida. Mantén un peso saludable con una dieta equilibrada y ejercicio regular, y practica un cuidadoso cuidado de la piel para prevenir infecciones. Usa prendas de compresión según lo recomendado por tu proveedor de atención médica para apoyar la función linfática. Evita actividades que tensen excesivamente la extremidad afectada y ten cuidado con las temperaturas extremas. Las revisiones regulares con tu proveedor de atención médica son esenciales para monitorear la condición y asegurar una intervención oportuna si los síntomas progresan.",
+        "diag_moderate_severe": "Sugerencias  \n\nPara las personas con linfedema moderado a severo, la gestión integral es crucial. Adhiérete a un régimen que incluya el uso constante de prendas de compresión, masajes regulares de drenaje linfático y ejercicios de fisioterapia diseñados para mejorar el flujo linfático. Mantén un cuidado riguroso de la piel para prevenir infecciones y evita cortes y quemaduras. Monitorea tu condición de cerca y mantén citas regulares con tu proveedor de atención médica para seguir el progreso y ajustar los tratamientos según sea necesario. Limita las actividades que ejerzan una tensión excesiva en el área afectada y ten cuidado con las temperaturas extremas. La intervención temprana y proactiva es clave para manejar los síntomas y mejorar la calidad de vida.",
+        "This is your first time detecting Lymphedema. Keep on excercising and let us see your progress!": "Comentarios:  \n\nEsta es la primera vez que detecta linfedema. ¡Sigue ejercitando y veamos tu progreso!",
+        "This is your first time detecting Lymphedema. Keep on the good record!": "Comentarios:  \n\nEsta es la primera vez que detecta linfedema. ¡Mantén el buen registro!",
+        "Your detection result shows low risk, keep on the good record!": "Comentarios:  \n\nTu resultado de detección muestra un riesgo bajo, ¡mantén el buen registro!",
+        "Your detection result requires further inspection, please advice the doctors for further help. Keep on excercising and let us see your progress!": "Comentarios:  \n\nTu resultado de detección requiere una inspección adicional, por favor consulta a los médicos para más ayuda. ¡Sigue ejercitándote y veamos tu progreso!",
+        "Your detection result does not change since the last time. Keep on excercising and let us see your progress!": "Comentarios:  \n\nTu resultado de detección no ha cambiado desde la última vez. ¡Sigue ejercitándote y veamos tu progreso!",
+        "Congratulations! Your detection result is much better than your last time. Keep on the good record!": "Comentarios:  \n\n¡Felicidades! Tu resultado de detección es mucho mejor que la última vez. ¡Mantén el buen registro!",
+        "Congratulations! Your detection result is better than your last time. Keep on excercising and keep on the good record!": "Comentarios:  \n\n¡Felicidades! Tu resultado de detección es mejor que la última vez. ¡Sigue ejercitándote y mantén el buen registro!",
+        "recommendation":"\n\nAdemás, para finalizar el diagnóstico, le recomendamos que proceda con el diagnóstico visualizado (presione el botón en la esquina inferior izquierda), para acceder a su puntaje de riesgo detallado de linfedema, las probabilidades de la etapa de linfedema, su historial de diagnóstico y los factores que influyen en el linfedema."
     }
 }
