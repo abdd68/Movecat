@@ -219,8 +219,7 @@ class PLOTFrame(ctk.CTkScrollableFrame):
         if os.name == 'nt':
             self.bind_all("<MouseWheel>", on_mouse_wheel)
         elif os.name == 'posix':
-            self.bind_all("<Button-4>", on_mouse_wheel)
-            self.bind_all("<Button-5>", on_mouse_wheel)
+            self.bind_all("<MouseWheel>", on_mouse_wheel)
 
     def construct(self):
         self.create_figure1()
@@ -389,7 +388,7 @@ class PLOTFrame(ctk.CTkScrollableFrame):
 
     def create_figure4(self):
         
-        plt.figure(num=4, figsize=(7, 14), dpi=80, facecolor="white", edgecolor='Teal', frameon=True)
+        plt.figure(num=4, figsize=(7, 12), dpi=80, facecolor="white", edgecolor='Teal', frameon=True)
         plt.title(self.get_text('Important factors contributing to Lymphedema'), pad=20, fontsize=36)
         plt.yscale('symlog', linthresh=0.00005)
         plt.tick_params(axis='x', labelsize=18, rotation=60)
@@ -847,7 +846,7 @@ class App(ctk.CTk):
         self.output_labels = OrderedDict({'BMI': "22.1", 'Age': "40", 'TIME_LAPSE': "1", 'Mobility': "1", 'ArmSwelling': "0", 'BreastSwelling': "0", 'Skin': "0", 'PAS': "0", 'FHT': "1", 'DISCOMFORT': "0", 'SYM_COUNT': "2", 'ChestWallSwelling': "0", 'Chemotherapy': "1", 'Radiation': "0", 'Number_nodes': "1", 'Mastectomy': "1", 'Lumpectomy': "0", 'Hormonal': "0"})
         ctk.set_appearance_mode("light")
         self.title(self.get_text("title"))
-        self.geometry("800x700")
+        self.geometry("1000x700")
         self.menu_bar = tk.Menu(self, font=self.font_list[0])
         self.config(menu=self.menu_bar)
         # language_menu
@@ -987,10 +986,8 @@ class App(ctk.CTk):
         self.show_frame("Page1")
         return
     
-import matplotlib
 if __name__ == '__main__':
     global basepath
-    matplotlib.use('Agg')
     if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
         basepath = sys._MEIPASS
     else:
