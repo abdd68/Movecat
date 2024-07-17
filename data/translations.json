@@ -149,8 +149,17 @@
         "Pain, aching and soreness": "Pain, aching and soreness",
         "Hormonal": "Hormonal",
         "Limited Mobility": "Limited Mobility",
-        "ChestWall swelling": "ChestWall swelling"
-    
+        "ChestWall swelling": "ChestWall swelling",
+        "Fontsize": "Font",
+        "Small": "Small",
+        "Medium": "Medium",
+        "Large": "Large",
+        "Super Large": "Super Large",
+        "Restart": "Restart",
+        "Changing the fontsize will restart the system. Make sure the data is saved.": "Changing the fontsize will restart the system. Make sure the data is saved.",
+        "Data saved!": "Data saved!",
+        "Confirmation": "Confirmation",
+        "Are you sure you want to reset? This will clear your reported symptoms.": "Are you sure you want to reset? This will clear your reported symptoms."
     },
     "Chinese": {
         "title": "淋巴水肿早期检测系统",
@@ -289,7 +298,7 @@
         "last 5 times": "最近5次",
         "last 10 times": "最近10次",
         "last 20 times": "最近20次",
-        "Overall": "总体",
+        "Overall": "全部",
         "Important factors contributing to Lymphedema": "导致淋巴水肿的重要因素",
         "Symptom severity": "症状严重程度",
         "time lapse since last surgery": "自上次手术以来的时间间隔",
@@ -302,7 +311,18 @@
         "Pain, aching and soreness": "疼痛、酸痛和痛苦",
         "Hormonal": "激素",
         "Limited Mobility": "活动受限",
-        "ChestWall swelling": "胸壁肿胀"
+        "ChestWall swelling": "胸壁肿胀",
+        "Fontsize": "字体",
+        "Small": "小",
+        "Medium": "中",
+        "Large": "大",
+        "Super Large": "超大",
+        "Restart": "重启",
+        "Changing the fontsize will restart the system. Make sure the data is saved.": "改变字体大小将会重启系统。请确保数据已保存。",
+        "Data saved!": "数据已保存！",
+        "Confirmation": "确认",
+        "Are you sure you want to reset? This will clear your reported symptoms.": "您确定要重置吗？这将清除您报告的症状。"
+        
     },
     "Spanish": {
         "title": "Sistema de Detección Temprana de Linfedema",
@@ -454,7 +474,17 @@
         "Pain, aching and soreness": "Dolor, dolorido y molestia",
         "Hormonal": "Hormonal",
         "Limited Mobility": "Movilidad limitada",
-        "ChestWall swelling": "Hinchazón de la pared torácica"
+        "ChestWall swelling": "Hinchazón de la pared torácica",
+        "Fontsize": "fuente",
+        "Small": "Pequeño",
+        "Medium": "Mediano",
+        "Large": "Grande",
+        "Super Large": "Súper grande",
+        "Restart": "Reiniciar",
+        "Changing the fontsize will restart the system. Make sure the data is saved.": "Cambiar el tamaño de la fuente reiniciará el sistema. Asegúrate de que los datos estén guardados.",
+        "Data saved!": "¡Datos guardados!",
+        "Confirmation": "Confirmación",
+        "Are you sure you want to reset? This will clear your reported symptoms.": "¿Estás seguro de que quieres restablecer? Esto borrará tus síntomas reportados."
     
     }
 }

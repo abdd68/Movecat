@@ -33,7 +33,8 @@ def get_translation(translations, lang, key):
 
 
 class CreateToolTip:
-    def __init__(self, widget, text, delay=450):
+    def __init__(self, widget, text, font = None, delay=450):
+        self.font = font
         self.widget = widget
         self.text = text
         self.tooltip = None
@@ -52,7 +53,7 @@ class CreateToolTip:
         self.tooltip = ctk.CTkToplevel(self.widget)
         self.tooltip.wm_overrideredirect(True)
         self.tooltip.wm_geometry(f"+{x}+{y}")
-        label = ctk.CTkLabel(self.tooltip, text=self.text, corner_radius=5)
+        label = ctk.CTkLabel(self.tooltip, text=self.text, corner_radius=5, font = self.font)
         label.pack()
 
     def hide_tooltip(self, event):
@@ -71,8 +72,15 @@ class CreateToolTip:
 
 class MyScrollableCheckboxFrame(ctk.CTkScrollableFrame):
     def __init__(self, master, title, labels, suggestions, instructions, num_columns, font, get_text):
-        super().__init__(master, width=660, height=350, label_text=get_text(title))
-        self.title = title
+        super().__init__(master, width=660, height=350) # label_text=get_text(title)
+        # self.title = title
+        def on_mouse_wheel(event):
+            self._parent_canvas.yview_scroll(-50 * int((event.delta / 120)), "units")
+        if os.name == 'nt':
+            self.bind_all("<MouseWheel>", on_mouse_wheel)
+        elif os.name == 'posix':
+            self.bind_all("<Button-4>", on_mouse_wheel)
+            self.bind_all("<Button-5>", on_mouse_wheel)
         self.labels = labels
         self.suggestions = suggestions
         self.instructions = instructions
@@ -87,19 +95,20 @@ class MyScrollableCheckboxFrame(ctk.CTkScrollableFrame):
         bg_color = self.cget("fg_color")
         for i, (label_text) in enumerate(self.labels.keys()):
             row, column = i // num_columns, i % num_columns
-            label_frame = ctk.CTkFrame(self, bg_color=bg_color)
+            label_frame = ctk.CTkFrame(self, bg_color=bg_color, fg_color=bg_color)
             label_frame.grid(row=row+1, column=column*2, padx=5, pady=5, sticky='w')
             
-            label = ctk.CTkLabel(label_frame, text=get_text(label_text), font=self.font, bg_color=bg_color)
+            label = ctk.CTkLabel(label_frame, text=get_text(label_text), font=self.font, bg_color=bg_color, fg_color=bg_color)
             label.pack(side='left')
             self.label_handles.append(label)
             if i < 35:  # 前28项为必填
-                asterisk = ctk.CTkLabel(label_frame, text="*", font=("Helvetica", 20), text_color="red", bg_color=bg_color)
+                asterisk = ctk.CTkLabel(label_frame, text="*", font=("Helvetica", 5*master.parent.fontsize/3), text_color="red", bg_color=bg_color, fg_color=bg_color)
                 asterisk.pack(side='left')
 
             tooltip_text = self.get_text(self.instructions[i])
-            tooltip = CreateToolTip(label, tooltip_text)
+            tooltip = CreateToolTip(label, tooltip_text, font=self.font)
             self.tooltip_handles.append(tooltip)
+            custom_font = ctk.CTkFont(family="Helvetica", size=master.parent.fontsize)
             if self.suggestions is None:
                 entry_b = ctk.StringVar(value='')
                 entry_var = ctk.StringVar(value='-')
@@ -107,15 +116,18 @@ class MyScrollableCheckboxFrame(ctk.CTkScrollableFrame):
                 entry_b = ctk.StringVar(value=self.get_text(self.int2str(i, suggestions[label_text])))
                 entry_var = ctk.StringVar(value=self.get_text(self.int2str(i, suggestions[label_text])))
             if i < 4:
-                entry = ctk.CTkEntry(self, textvariable=entry_b)
+                entry = ctk.CTkEntry(self, textvariable=entry_b, font = custom_font)
             elif i < 28:
-                entry = ctk.CTkOptionMenu(self, variable=entry_var, values=self.options)
+                entry = ctk.CTkOptionMenu(self, variable=entry_var, values=self.options, font=custom_font)
+                entry._dropdown_menu.configure(font=custom_font)
             elif i < 30:
-                entry = ctk.CTkOptionMenu(self, variable=entry_var, values=['No', 'Yes'])
+                entry = ctk.CTkOptionMenu(self, variable=entry_var, values=['No', 'Yes'], font=custom_font)
+                entry._dropdown_menu.configure(font=custom_font)
             elif i < 32:
-                entry = ctk.CTkEntry(self, textvariable=entry_b)
+                entry = ctk.CTkEntry(self, textvariable=entry_b, font = custom_font)
             else:
-                entry = ctk.CTkOptionMenu(self, variable=entry_var, values=['No', 'Yes'])
+                entry = ctk.CTkOptionMenu(self, variable=entry_var, values=['No', 'Yes'], font=custom_font)
+                entry._dropdown_menu.configure(font=custom_font)
             entry.grid(row=row+1, column=column*2+1, padx=5, pady=5, sticky='w')
 
             self.entries.append(entry)
@@ -135,7 +147,7 @@ class MyScrollableCheckboxFrame(ctk.CTkScrollableFrame):
         return self.labels, admit_page3
     
     def update_texts(self):
-        self.configure(label_text=self.get_text(self.title))
+        # self.configure(label_text=self.get_text(self.title))
         for i, (label_text, suggestion) in enumerate(self.labels.items()):
             self.label_handles[i].configure(text=self.get_text(label_text))
         for i in range(len(self.instructions)):
@@ -195,14 +207,20 @@ class MyScrollableCheckboxFrame(ctk.CTkScrollableFrame):
                 return int_
         else:
             return int_
-    
+
 class PLOTFrame(ctk.CTkScrollableFrame):
-    def __init__(self, master=None, title=None, font=None, get_text=None, fg_color = 'white'):
+    def __init__(self, master, title=None, font=None, get_text=None, fg_color = 'white'):
         super().__init__(master, width=720, height=400, label_text=get_text(title), fg_color = fg_color)
         self.master = master
         self.get_text = get_text
         self.font = font
-        self.construct()
+        def on_mouse_wheel(event):
+            self._parent_canvas.yview_scroll(-50 * int((event.delta / 120)), "units")
+        if os.name == 'nt':
+            self.bind_all("<MouseWheel>", on_mouse_wheel)
+        elif os.name == 'posix':
+            self.bind_all("<Button-4>", on_mouse_wheel)
+            self.bind_all("<Button-5>", on_mouse_wheel)
 
     def construct(self):
         self.create_figure1()
@@ -212,10 +230,6 @@ class PLOTFrame(ctk.CTkScrollableFrame):
         self.createWidget()
 
     def createWidget(self):
-        self.grid_rowconfigure(0, weight=1)
-        self.grid_rowconfigure(1, weight=1)
-        self.grid_rowconfigure(2, weight=1)
-        self.grid_rowconfigure(3, weight=1)
         self.grid_columnconfigure(0, weight=1)
 
     def save_score(self):
@@ -327,16 +341,17 @@ class PLOTFrame(ctk.CTkScrollableFrame):
             button_frame.columnconfigure(2, weight=1)
             button_frame.columnconfigure(3, weight=1)
             
-            recent_5_button = ctk.CTkButton(button_frame, text=self.get_text("last 5 times"), command=show_recent_5)
+            custom_font = ctk.CTkFont(family="Helvetica", size=self.master.parent.fontsize)
+            recent_5_button = ctk.CTkButton(button_frame, text=self.get_text("last 5 times"), command=show_recent_5, font=custom_font)
             recent_5_button.grid(row=0, column = 0, pady = 10)
 
-            recent_10_button = ctk.CTkButton(button_frame, text=self.get_text("last 10 times"), command=show_recent_10)
+            recent_10_button = ctk.CTkButton(button_frame, text=self.get_text("last 10 times"), command=show_recent_10, font=custom_font)
             recent_10_button.grid(row=0, column = 1, pady = 10)
 
-            recent_20_button = ctk.CTkButton(button_frame, text=self.get_text("last 20 times"), command=show_recent_20)
+            recent_20_button = ctk.CTkButton(button_frame, text=self.get_text("last 20 times"), command=show_recent_20, font=custom_font)
             recent_20_button.grid(row=0, column = 2, pady = 10)
 
-            all_button = ctk.CTkButton(button_frame, text=self.get_text("Overall"), command=show_all)
+            all_button = ctk.CTkButton(button_frame, text=self.get_text("Overall"), command=show_all, font=custom_font)
             all_button.grid(row=0, column = 3, pady = 10)
         
         def get_recent_data(data, num):
@@ -550,10 +565,10 @@ class Page2(ctk.CTkFrame):
             self.parent.labels, _ = self.scrollable_checkbox_frame.get()
             suggestions = self.parent.labels
             self.save_suggestions(suggestions)
-            messagebox.showinfo("Save", "Data saved!")
+            messagebox.showinfo(self.parent.get_text("Save"), self.parent.get_text("Data saved!"))
         
         def on_button_reset():
-            response = messagebox.askyesno("Confirmation", "Are you sure you want to reset? This will clear your reported symptoms.")
+            response = messagebox.askyesno(self.parent.get_text("Confirmation"), self.parent.get_text("Are you sure you want to reset? This will clear your reported symptoms."))
             if not response:
                 return
             self.reset_flag = True
@@ -676,7 +691,7 @@ class Pagechart(ctk.CTkFrame):
     def construct(self):
         self.page_label = ctk.CTkLabel(self, text=self.parent.get_text("plot_bar_chart"), font=self.font)
         self.page_label.grid(row=0, column=0, pady=20, sticky="nsew")
-        self.plot_frame = PLOTFrame(master=self, font=self.font, get_text=self.parent.get_text, fg_color = 'white')
+        self.plot_frame = PLOTFrame(self, font=self.font, get_text=self.parent.get_text, fg_color = 'white')
         self.plot_frame.grid(row=1, column=0, padx=10, columnspan=2, pady=(10, 0), sticky="nsew")
         self.back_button = ctk.CTkButton(self, text=self.parent.get_text("return"), command=lambda: self.parent.show_frame("Page3"), font=self.font)
         self.back_button.grid(row=2, column=0, padx=10, columnspan=2, pady=(10, 0), sticky="ew")
@@ -776,7 +791,8 @@ class App(ctk.CTk):
         with open(os.path.join(basepath, "data", "default.json"), "r") as json_file:
             default = json.load(json_file)
             self.lang = default['lang']
-        self.font_list = [("Helvetica", 16)]
+            self.fontsize = default['fontsize']
+        self.font_list = [("Helvetica", self.fontsize)]
         self.current_user = None
         self.y_pred = None
         self.score_save_flag = False
@@ -799,6 +815,14 @@ class App(ctk.CTk):
         languages = ["English (English)", "Chinese (简体中文)", "Spanish (Español)"]
         for language in languages:
             self.language_menu.add_command(label=language, command=lambda lang=language: self.set_language(lang))
+
+        self.fontsize_menu = tk.Menu(self.menu_bar, tearoff=0, font=self.font_list[0])
+        self.menu_bar.add_cascade(label=self.get_text("Fontsize"), menu=self.fontsize_menu)
+        self.fontsize_menu.add_command(label = self.get_text("Small"), command=lambda: self.set_font(16))
+        self.fontsize_menu.add_command(label = self.get_text("Medium"), command=lambda: self.set_font(24))
+        self.fontsize_menu.add_command(label = self.get_text("Large"), command=lambda: self.set_font(32))
+        self.fontsize_menu.add_command(label = self.get_text("Super Large"), command=lambda: self.set_font(40))
+
         # Account menu
         self.account_menu = tk.Menu(self.menu_bar, tearoff=0, font=self.font_list[0])
         self.menu_bar.add_cascade(label=self.get_text("Account"), menu=self.account_menu)
@@ -815,10 +839,23 @@ class App(ctk.CTk):
         self.help_menu.add_command(label=self.get_text("Instructions"), command=self.show_instructions)
         self.help_menu.add_command(label=self.get_text("About"), command=lambda: self.show_frame("Pageabout"))
 
+
         self.frames = {}
         self.create_frames()
         self.show_frame("Page1")
 
+    def set_font(self, num):
+        with open(os.path.join(basepath, "data", "default.json"), "r") as json_file:
+            existing_data = json.load(json_file)
+            existing_data['fontsize'] = num
+        with open(os.path.join(basepath, "data", "default.json"), 'w') as json_file:
+            json.dump(existing_data, json_file, indent=4)
+        answer = messagebox.askyesno(self.get_text("Restart"), self.get_text("Changing the fontsize will restart the system. Make sure the data is saved."))
+        if answer:
+            # 使用os.execl重启程序
+            python = sys.executable
+            os.execl(python, python, *sys.argv)
+        
     def create_frames(self):
         self.frames["PageLogin"] = PageLogin(self)
         self.frames["Page1"] = Page1(self)
@@ -869,16 +906,22 @@ class App(ctk.CTk):
     def update_texts(self):
         if os.name == 'nt':
             self.menu_bar.entryconfig(1, label=self.get_text("Language"))
-            self.menu_bar.entryconfig(2, label=self.get_text("Account"))
-            self.menu_bar.entryconfig(3, label=self.get_text("Help"))
+            self.menu_bar.entryconfig(2, label=self.get_text("Fontsize"))
+            self.menu_bar.entryconfig(3, label=self.get_text("Account"))
+            self.menu_bar.entryconfig(4, label=self.get_text("Help"))
         elif os.name == 'posix':
             self.menu_bar.entryconfig(0, label=self.get_text("Language"))
-            self.menu_bar.entryconfig(1, label=self.get_text("Account"))
-            self.menu_bar.entryconfig(2, label=self.get_text("Help"))
+            self.menu_bar.entryconfig(1, label=self.get_text("Fontsize"))
+            self.menu_bar.entryconfig(2, label=self.get_text("Account"))
+            self.menu_bar.entryconfig(3, label=self.get_text("Help"))
         self.help_menu.entryconfig(0, label=self.get_text("Instructions"))
         self.help_menu.entryconfig(1, label=self.get_text("About"))
         self.account_menu.entryconfig(0, label=self.get_text("Login/Register"))
         self.account_menu.entryconfig(1, label=self.get_text("Logout"))
+        self.fontsize_menu.entryconfig(0, label=self.get_text("Small"))
+        self.fontsize_menu.entryconfig(1, label=self.get_text("Medium"))
+        self.fontsize_menu.entryconfig(2, label=self.get_text("Large"))
+        self.fontsize_menu.entryconfig(3, label=self.get_text("Super Large"))
         if self.current_user is not None:
             self.account_menu.entryconfig(2, label=self.get_text("Login as: ") + self.current_user)
         else:
