@@ -11,6 +11,7 @@ import pickle
 import math
 import json
 from tkinter import messagebox
+from matplotlib import font_manager
 from matplotlib.font_manager import FontProperties
 
 def load_translations(filepath):
@@ -992,6 +993,8 @@ if __name__ == '__main__':
         basepath = sys._MEIPASS
     else:
         basepath = os.path.abspath(".")
+    font_path = os.path.join(basepath, 'data', 'SimHei.ttf') # 替换为SimHei.ttf的实际路径
+    font_manager.fontManager.addfont(font_path)
     app = App()
     app.protocol("WM_DELETE_WINDOW", sys.exit)
     app.mainloop()
