@@ -3,6 +3,7 @@ import matplotlib.font_manager as fm
 
 # 检查 SimHei 字体是否在系统中
 font_paths = fm.findSystemFonts()
+breakpoint()
 simhei_font_path = None
 for font_path in font_paths:
     if 'SimHei' in font_path:
