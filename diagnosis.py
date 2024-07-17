@@ -529,12 +529,12 @@ class Page2(ctk.CTkFrame):
             return {}
         
     def save_suggestions(self, suggestions):
-        if os.path.exists(self.parent.record_data_path):
-            with open(self.parent.record_data_path, 'r') as json_file:
-                existing_data = json.load(json_file)
-        else:
-            existing_data = {}  # 如果文件不存在，初始化为空字典
-        existing_data[self.parent.current_user]['suggestions'] = suggestions
+        existing_data = load_user_data(self.parent.record_data_path)
+        try:
+            existing_data[self.parent.current_user]['suggestions'] = suggestions
+        except:
+            existing_data[self.parent.current_user] = {}
+            existing_data[self.parent.current_user]['suggestions'] = suggestions
         with open(self.parent.record_data_path, 'w') as json_file:
             json.dump(existing_data, json_file, indent=4)
 
@@ -801,7 +801,8 @@ class PageLogin(ctk.CTkFrame):
     def login(self):
         username = self.entry_username.get()
         password = self.entry_password.get()
-        if username in self.parent.user_data and self.parent.user_data[username] == password:
+        userdata = load_user_data(self.parent.user_data_path)
+        if username in userdata and userdata[username] == password:
             self.parent.current_user = username
             # messagebox.showinfo(self.parent.get_text("Login"), self.parent.get_text("Login successful")) # !!!
             self.parent.update_login_label()
@@ -812,7 +813,8 @@ class PageLogin(ctk.CTkFrame):
     def register(self):
         username = self.entry_username.get()
         password = self.entry_password.get()
-        if username in self.parent.user_data:
+        userdata = load_user_data(self.parent.user_data_path)
+        if username in userdata:
             messagebox.showerror(self.parent.get_text("Register"), self.parent.get_text("Username already exists"))
         elif username.strip() == '' or password.strip() == '':
             messagebox.showerror(self.parent.get_text("Register"), self.parent.get_text("Invalid username or password: can NOT be empty."))
@@ -869,6 +871,7 @@ class App(ctk.CTk):
         self.menu_bar.add_cascade(label=self.get_text("Account"), menu=self.account_menu)
         self.account_menu.add_command(label=self.get_text('Login/Register'), command=lambda: self.show_frame("PageLogin"))
         self.account_menu.add_command(label=self.get_text('Logout'), command=lambda: self.logout())
+        self.account_menu.add_command(label=self.get_text('Delete Account'), command=lambda: self.delete_account())
         if self.current_user is not None:
             self.account_menu.add_command(label=self.get_text('Login as:') + self.current_user)
         else:
@@ -884,6 +887,23 @@ class App(ctk.CTk):
         self.frames = {}
         self.create_frames()
         self.show_frame("Page1")
+
+    def delete_account(self):
+        if self.current_user == None:
+            messagebox.showwarning(self.get_text('Not login'), self.get_text("You're logged out now. Please register or login first."))
+            return
+        dialog = PasswordDialog(self, font=self.font_list[0])
+        self.wait_window(dialog)
+        user_data = load_user_data(self.user_data_path)
+        password = dialog.password
+        if password == user_data[self.current_user]:
+            answer = messagebox.askyesno(self.get_text('Confirmation'), self.get_text("Are you sure you want to delete this account? This operation can't be reversed."))
+            if answer:
+                self.logdel()
+            else:
+                return
+        else:
+            messagebox.showerror(self.get_text("Delete Account"), self.get_text("Invalid password: your password is incorrect."))
 
     def set_font(self, num):
         with open(os.path.join(basepath, "data", "default.json"), "r") as json_file:
@@ -925,7 +945,7 @@ class App(ctk.CTk):
 
     def update_login_label(self):
         # Clear the menu before updating
-        self.account_menu.delete(2)
+        self.account_menu.delete(3)
         # Add the updated command
         if self.current_user is not None:
             self.account_menu.add_command(label=self.get_text('Login as: ')+ self.current_user)
@@ -959,14 +979,15 @@ class App(ctk.CTk):
         self.help_menu.entryconfig(1, label=self.get_text("About"))
         self.account_menu.entryconfig(0, label=self.get_text("Login/Register"))
         self.account_menu.entryconfig(1, label=self.get_text("Logout"))
+        self.account_menu.entryconfig(2, label=self.get_text("Delete Account"))
         self.fontsize_menu.entryconfig(0, label=self.get_text("Small"))
         self.fontsize_menu.entryconfig(1, label=self.get_text("Medium"))
         self.fontsize_menu.entryconfig(2, label=self.get_text("Large"))
         self.fontsize_menu.entryconfig(3, label=self.get_text("Super Large"))
         if self.current_user is not None:
-            self.account_menu.entryconfig(2, label=self.get_text("Login as: ") + self.current_user)
+            self.account_menu.entryconfig(3, label=self.get_text("Login as: ") + self.current_user)
         else:
-            self.account_menu.entryconfig(2, label=self.get_text("You are logged out"))
+            self.account_menu.entryconfig(3, label=self.get_text("You are logged out"))
         for key, frame in self.frames.items():
             if hasattr(frame, "remove") and callable(getattr(frame, "remove")):
                 if hasattr(frame, "constructed") and not frame.constructed:
@@ -978,14 +999,54 @@ class App(ctk.CTk):
 
     def show_instructions(self):
         # Function to display instructions
-        tk.messagebox.showinfo("Instructions", self.get_text("In the detection page, detailed instructions are shown when you move the cursor🖱️ close to the words (for example, Your age (years)...)."))
+        tk.messagebox.showinfo(self.get_text("Instructions"), self.get_text("In the detection page, detailed instructions are shown when you move the cursor🖱️ close to the words (for example, Your age (years)...)."))
 
     def logout(self):
-        self.current_user = None
         messagebox.showinfo(self.get_text("Logout"), self.get_text("Logout sccessfully."))
+        self.current_user = None
         self.update_login_label()
         self.show_frame("Page1")
         return
+    
+    def logdel(self):
+        data = load_user_data(self.user_data_path)
+        del data[self.current_user]
+        save_user_data(self.user_data_path, data)
+        data = load_user_data(self.record_data_path)
+        try:
+            del data[self.current_user]
+        except:
+            pass
+        save_user_data(self.record_data_path, data)
+        self.current_user = None
+        self.update_login_label()
+        self.show_frame("Page1")
+        return
+    
+class PasswordDialog(ctk.CTkToplevel):
+    def __init__(self, parent, font):
+        super().__init__(parent)
+
+        self.font = font
+        self.title("Password Entry")
+        self.geometry("350x250")
+        self.transient(parent)  # 将对话框设置为父窗口的临时窗口
+        self.grab_set()  # 使对话框成为模态
+
+        self.label = ctk.CTkLabel(self, text=parent.get_text("Please enter your password:"), font = self.font)
+        self.label.pack(pady=10)
+
+        self.entry = ctk.CTkEntry(self, show='*', font = self.font)
+        self.entry.pack(pady=10)
+
+        self.button = ctk.CTkButton(self, text=parent.get_text("submit"), command=self.on_submit, font = self.font)
+        self.button.pack(pady=10)
+
+        self.password = None
+
+    def on_submit(self):
+        self.password = self.entry.get()
+        self.destroy()
     
 if __name__ == '__main__':
     global basepath

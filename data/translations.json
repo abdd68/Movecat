@@ -170,7 +170,11 @@
         "Your detection result does not change since the last time. Keep on excercising and let us see your progress!": "Comments: \n\nYour detection result does not change since the last time. Keep on excercising and let us see your progress!",
         "Congratulations! Your detection result is much better than your last time. Keep on the good record!": "Comments: \n\nCongratulations! Your detection result is much better than your last time. Keep on the good record!",
         "Congratulations! Your detection result is better than your last time. Keep on excercising and keep on the good record!": "Comments: \n\nCongratulations! Your detection result is better than your last time. Keep on excercising and keep on the good record!",
-        "recommendation":"\n\nTo finalize the diagnosis, we recommend you to proceed to visualized diagnosis (press the bottom left button), to access your detailed lymphedema risk score, the probabilities of lymphedema stage, your diagnosis history and factors influencing lymphedema."
+        "recommendation":"\n\nTo finalize the diagnosis, we recommend you to proceed to visualized diagnosis (press the bottom left button), to access your detailed lymphedema risk score, the probabilities of lymphedema stage, your diagnosis history and factors influencing lymphedema.",
+        "Are you sure you want to delete this account? This operation can't be reversed.": "Are you sure you want to delete this account? This operation can't be reversed.",
+        "Delete Account": "Delete account",
+        "Invalid password: your password is incorrect.": "Invalid password: your password is incorrect.",
+        "Please enter your password:": "Please enter your password:"
     },
     "Chinese": {
         "title": "淋巴水肿早期检测系统",
@@ -343,7 +347,11 @@
         "Your detection result does not change since the last time. Keep on excercising and let us see your progress!": "解释：\n\n  您的检测结果自上次以来没有变化。继续锻炼，让我们看看您的进展！",
         "Congratulations! Your detection result is much better than your last time. Keep on the good record!": "解释：\n\n  恭喜！您的检测结果比上次好了很多。保持良好的记录！",
         "Congratulations! Your detection result is better than your last time. Keep on excercising and keep on the good record!": "解释：\n\n  恭喜！您的检测结果比上次更好。继续锻炼并保持良好的记录！",
-        "recommendation":"\n\n为完善诊断结果，我们建议您进行可视化诊断（按左下角的按钮），以访问详细的淋巴水肿风险评分、淋巴水肿阶段的概率、您的诊断历史和影响淋巴水肿的因素。"
+        "recommendation":"\n\n为完善诊断结果，我们建议您进行可视化诊断（按左下角的按钮），以访问详细的淋巴水肿风险评分、淋巴水肿阶段的概率、您的诊断历史和影响淋巴水肿的因素。",
+        "Are you sure you want to delete this account? This operation can't be reversed.": "您确定要删除此账户吗？此操作无法撤销。",
+        "Delete Account": "删除账户",
+        "Invalid password: your password is incorrect.": "密码无效：您的密码不正确。",
+        "Please enter your password:": "请输入您的密码："
         
     },
     "Spanish": {
@@ -517,6 +525,10 @@
         "Your detection result does not change since the last time. Keep on excercising and let us see your progress!": "Comentarios:  \n\nTu resultado de detección no ha cambiado desde la última vez. ¡Sigue ejercitándote y veamos tu progreso!",
         "Congratulations! Your detection result is much better than your last time. Keep on the good record!": "Comentarios:  \n\n¡Felicidades! Tu resultado de detección es mucho mejor que la última vez. ¡Mantén el buen registro!",
         "Congratulations! Your detection result is better than your last time. Keep on excercising and keep on the good record!": "Comentarios:  \n\n¡Felicidades! Tu resultado de detección es mejor que la última vez. ¡Sigue ejercitándote y mantén el buen registro!",
-        "recommendation":"\n\nAdemás, para finalizar el diagnóstico, le recomendamos que proceda con el diagnóstico visualizado (presione el botón en la esquina inferior izquierda), para acceder a su puntaje de riesgo detallado de linfedema, las probabilidades de la etapa de linfedema, su historial de diagnóstico y los factores que influyen en el linfedema."
+        "recommendation":"\n\nAdemás, para finalizar el diagnóstico, le recomendamos que proceda con el diagnóstico visualizado (presione el botón en la esquina inferior izquierda), para acceder a su puntaje de riesgo detallado de linfedema, las probabilidades de la etapa de linfedema, su historial de diagnóstico y los factores que influyen en el linfedema.",
+        "Are you sure you want to delete this account? This operation can't be reversed.": "¿Estás seguro de que deseas eliminar esta cuenta? Esta operación no se puede revertir.",
+        "Delete Account": "Eliminar cuenta",
+        "Invalid password: your password is incorrect.": "Contraseña inválida: tu contraseña es incorrecta.",
+        "Please enter your password:": "Por favor introduzca su contraseña :"
     }
 }

@@ -1,25 +1,43 @@
-import matplotlib.pyplot as plt
-import matplotlib.font_manager as fm
+import customtkinter as ctk
+import tkinter as tk
+from tkinter import messagebox
 
-# 检查 SimHei 字体是否在系统中
-font_paths = fm.findSystemFonts()
-breakpoint()
-simhei_font_path = None
-for font_path in font_paths:
-    if 'SimHei' in font_path:
-        simhei_font_path = font_path
-        break
+class PasswordDialog(ctk.CTkToplevel):
+    def __init__(self, parent):
+        super().__init__(parent)
 
-if simhei_font_path:
-    plt.rcParams['font.sans-serif'] = ['SimHei']
-    plt.rcParams['axes.unicode_minus'] = False
-    print(f"SimHei font found at: {simhei_font_path}")
-else:
-    print("SimHei font not found. Please ensure it is installed on your system.")
+        self.title("Password Entry")
+        self.geometry("300x150")
 
-# 创建示例图表
-plt.title("示例标题", fontsize=20)
-plt.xlabel("X轴标签")
-plt.ylabel("Y轴标签")
-plt.plot([1, 2, 3], [4, 5, 6])
-plt.show()
+        self.label = ctk.CTkLabel(self, text="Please enter your password:")
+        self.label.pack(pady=10)
+
+        self.entry = ctk.CTkEntry(self, show='*')
+        self.entry.pack(pady=10)
+
+        self.button = ctk.CTkButton(self, text="Submit", command=self.on_submit)
+        self.button.pack(pady=10)
+
+        self.password = None
+
+    def on_submit(self):
+        self.password = self.entry.get()
+        self.destroy()
+
+def on_password_request():
+    dialog = PasswordDialog(root)
+    root.wait_window(dialog)
+    password = dialog.password
+    if password:
+        messagebox.showinfo("Password Entered", "Password entered successfully!")
+    else:
+        messagebox.showwarning("No Password", "You did not enter a password.")
+
+if __name__ == "__main__":
+    root = ctk.CTk()
+    root.geometry("300x150")
+
+    button = ctk.CTkButton(root, text="Enter Password", command=on_password_request)
+    button.pack(pady=20)
+
+    root.mainloop()
