@@ -320,7 +320,7 @@ class PLOTFrame(ctk.CTkScrollableFrame):
             existing_data = json.load(json_file)
             score_list = existing_data[self.master.parent.current_user]['score_list']
 
-        plt.figure(num = 3, figsize=(8, 8), dpi=100)
+        plt.figure(num = 3, figsize=(8, 6.8), dpi=100)
         def plot_scores(scores):
             x = range(1, len(scores) + 1)
             plt.xticks(range(min(x) - 1, max(x) + 1, 1))
