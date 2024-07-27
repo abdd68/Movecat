@@ -95,14 +95,25 @@ class MyScrollableCheckboxFrame(ctk.CTkScrollableFrame):
         self.lrow = 1
         bg_color = self.cget("fg_color")
         for i, (label_text) in enumerate(self.labels.keys()):
-            row, column = i // num_columns, i % num_columns
+            if i < 30:
+                row, column = i // num_columns, i % num_columns
+            elif i == 30:
+                row, column = i // num_columns + 2, 0
+            elif i == 31:
+                row, column = i // num_columns + 3, 0
+            else:
+                row, column = i // num_columns - 1, i % num_columns
+                
             label_frame = ctk.CTkFrame(self, bg_color=bg_color, fg_color=bg_color)
-            label_frame.grid(row=row+1, column=column*2, padx=5, pady=5, sticky='w')
+            if i != 30 and i != 31:
+                label_frame.grid(row=row+1, column=column*2, padx=5, pady=5, sticky='w')
+            else:
+                label_frame.grid(row=row+1, column=column*2, columnspan = 2, padx=5, pady=5, sticky='w')
             
             label = ctk.CTkLabel(label_frame, text=get_text(label_text), font=self.font, bg_color=bg_color, fg_color=bg_color)
             label.pack(side='left')
             self.label_handles.append(label)
-            if i < 35:  # 前28项为必填
+            if i < 28:  # 前28项为必填
                 asterisk = ctk.CTkLabel(label_frame, text="*", font=("Helvetica", 5*master.parent.fontsize/3), text_color="red", bg_color=bg_color, fg_color=bg_color)
                 asterisk.pack(side='left')
 
@@ -129,7 +140,11 @@ class MyScrollableCheckboxFrame(ctk.CTkScrollableFrame):
             else:
                 entry = ctk.CTkOptionMenu(self, variable=entry_var, values=['No', 'Yes'], font=custom_font)
                 entry._dropdown_menu.configure(font=custom_font)
-            entry.grid(row=row+1, column=column*2+1, padx=5, pady=5, sticky='w')
+                
+            if i != 30 and i != 31:
+                entry.grid(row=row+1, column=column*2+1, padx=5, pady=5, sticky='w')
+            else:
+                entry.grid(row=row+1, column=2, columnspan = 2, padx=5, pady=5, sticky='w')
 
             self.entries.append(entry)
             self.lrow += 1
@@ -143,8 +158,14 @@ class MyScrollableCheckboxFrame(ctk.CTkScrollableFrame):
         admit_page3 = True
         for i, (key, value) in enumerate(self.labels.items()):
             self.labels[key] = self.str2int(i, self.entries[i].get())
-            if self.labels[key].strip() == '' or self.labels[key].strip() == '-':
-                admit_page3 = False
+            if self.labels[key].strip() != '' and self.labels[key].strip() != '-':
+                continue
+            else:
+                if i < 28:
+                    admit_page3 = False
+                    break
+                if i >= 28:
+                    self.labels[key] = '-'
         return self.labels, admit_page3
     
     def update_texts(self):
@@ -604,7 +625,13 @@ class Page2(ctk.CTkFrame):
     def remove(self):
         for widget in self.winfo_children():
             widget.destroy()
-
+            
+    def validate_str(self, _str):
+        if _str == '-':
+            return '0'
+        else:
+            return _str
+        
     def label_processing(self, labels):
         def str2b(str_):
             return 0 if str_ == '0' else 1
@@ -621,13 +648,12 @@ class Page2(ctk.CTkFrame):
         output_labels['DISCOMFORT'] = labels['Pain, aching, soreness']
         output_labels['SYM_COUNT'] = sum(str2b(labels[k]) for k in ['Limited shoulder movement', 'Limited elbow movement', 'Limited wrist movement', 'Limited fingers movement', 'Limited arm movement', 'Arm or hand swelling', 'Breast swelling', 'Chest swelling', 'Toughness or thickness of skin', 'Pain, aching, soreness', 'Tightness', 'Firmness', 'Heaviness', 'Numbness', 'Burning', 'Stabbing', 'Tingling', 'Fatigue', 'Weakness', 'Redness', 'Hotness', 'Stiffness', 'Tenderness', 'Blister'])
         output_labels['ChestWallSwelling'] = labels['Chest swelling']
-        output_labels['Chemotherapy'] = labels['Chemotherapy']
-        output_labels['Radiation'] = labels['Radiation']
-        if labels['SLNB_Removed_LN'] != '' and labels['ALND_Removed_LN'] != '':
-            output_labels['Number_nodes'] = int(labels['SLNB_Removed_LN'])+ int(labels['ALND_Removed_LN'])
-        output_labels['Mastectomy'] = labels['Mastectomy']
-        output_labels['Lumpectomy'] = labels['Lumpectomy']
-        output_labels['Hormonal'] = labels['Hormonal therapy']
+        output_labels['Chemotherapy'] = self.validate_str(labels['Chemotherapy'])
+        output_labels['Radiation'] = self.validate_str(labels['Radiation'])
+        output_labels['Number_nodes'] = int(self.validate_str(labels['SLNB_Removed_LN']))+ int(self.validate_str(labels['ALND_Removed_LN']))
+        output_labels['Mastectomy'] = self.validate_str(labels['Mastectomy'])
+        output_labels['Lumpectomy'] = self.validate_str(labels['Lumpectomy'])
+        output_labels['Hormonal'] = self.validate_str(labels['Hormonal therapy'])
         return output_labels
 
 class Page3(ctk.CTkFrame):
@@ -682,7 +708,10 @@ class Page3(ctk.CTkFrame):
                 self.comments.insert('0.0', self.parent.get_text(f'This is your first time detecting Lymphedema. Keep on the good record!'))
         else:
             if not self.parent.score_save_flag: # not allowed to submit score. At this point the score must have been submitted
-                last_time_score = score_list[-2]
+                if len(score_list) == 1:
+                    last_time_score = score_list[0]
+                else:
+                    last_time_score = score_list[-2]
             else:
                 last_time_score = score_list[-1]
             if max_label == 0:
@@ -839,12 +868,12 @@ class App(ctk.CTk):
         self.current_user = None
         self.y_pred = None
         self.score_save_flag = False
-        self.labels = OrderedDict({ 'Age (years)': '40', 'Time Lapse (years)': '1', 'Weight (Kg)': '60', 'Height (cm)': '170', 'Limited shoulder movement': "0",\
-                                    'Limited elbow movement': "0", 'Limited wrist movement': "0", 'Limited fingers movement': "0", 'Limited arm movement': "0", 'Arm or hand swelling': "0",\
-                                    'Breast swelling': "0", 'Chest swelling': "0", 'Toughness or thickness of skin': "0", 'Pain, aching, soreness': "0", 'Tightness': "0", 'Firmness': "0",\
-                                    'Heaviness': "1", 'Numbness': "0", 'Burning': "0", 'Stabbing': "0", 'Tingling': "0", 'Fatigue': "0", 'Weakness': "0", 'Redness': "0", 'Hotness': "0",\
-                                    'Stiffness': "0", 'Tenderness': "0", 'Blister': "0", 'Chemotherapy': '0', 'Radiation': '0', 'SLNB_Removed_LN': '0', 'ALND_Removed_LN': '0',\
-                                    'Mastectomy': '0', 'Lumpectomy': '0', 'Hormonal therapy': '0'})  # the default value has been abandoned.
+        self.labels = OrderedDict({ 'Age (years)': '', 'Time Lapse (years)': '', 'Weight (Kg)': '', 'Height (cm)': '', 'Limited shoulder movement': "",\
+                                    'Limited elbow movement': "", 'Limited wrist movement': "", 'Limited fingers movement': "", 'Limited arm movement': "", 'Arm or hand swelling': "",\
+                                    'Breast swelling': "", 'Chest swelling': "", 'Toughness or thickness of skin': "", 'Pain, aching, soreness': "", 'Tightness': "", 'Firmness': "",\
+                                    'Heaviness': "", 'Numbness': "", 'Burning': "", 'Stabbing': "", 'Tingling': "", 'Fatigue': "", 'Weakness': "", 'Redness': "", 'Hotness': "",\
+                                    'Stiffness': "", 'Tenderness': "", 'Blister': "", 'Chemotherapy': '', 'Radiation': '', 'SLNB_Removed_LN': '', 'ALND_Removed_LN': '',\
+                                    'Mastectomy': '', 'Lumpectomy': '', 'Hormonal therapy': ''})  # the default value has been abandoned.
         self.instructions = ['Your age (years)', 'Time lapse since your recent breast cancer surgery (years)', 'Body weight (Kg)', 'Height (cm)', 'How much do you feel your shoulder movement is limited?', 'How much do you feel your elbow movement is limited?', 'How much do you feel your wrist movement is limited?', 'How much do you feel your fingers movement is limited?', 'How much do you feel your arm movement is limited?', 'How much do your arm or hand swell: if both, select the most intense feelings.', 'How much does your breast swell?', 'How much does your chest swell?', 'Toughness or thickness of skin', 'Do you feel pain, aching, or soreness: if more than one feeling, select the most intense one.', 'Tightness of your affected arm.', 'Firmness of your affected arm.', 'Heaviness of your affected arm.', 'Numbness of your affected arm.', 'The feeling of burning of your affected arm.', 'The feeling of stabbing of your affected arm.', 'The feeling of tingling, or feeling of needles of your affected arm.', 'The feeling of fatigue of your affected arm.', 'The feeling of weakness of your affected arm.', 'How much does your affected arm looks red?', 'How much does your affected arm feel hot?', 'How much does your affected arm feel stiff?', 'How much does your affected arm feel sensitive or tender when touching things?', 'Does you affected arm blisters?', 'Whether the patient had chemotherapy.', 'Whether the patient had radiation.', 'The number of removed sentinel lymph nodes.', 'The number of removed axillary lymph nodes', 'Whether the patient had Mastectomy.', 'Whether the patient had Lumpectomy.', 'Whether the patient had hormonal therapy.']
         self.output_labels = OrderedDict({'BMI': "22.1", 'Age': "40", 'TIME_LAPSE': "1", 'Mobility': "1", 'ArmSwelling': "0", 'BreastSwelling': "0", 'Skin': "0", 'PAS': "0", 'FHT': "1", 'DISCOMFORT': "0", 'SYM_COUNT': "2", 'ChestWallSwelling': "0", 'Chemotherapy': "1", 'Radiation': "0", 'Number_nodes': "1", 'Mastectomy': "1", 'Lumpectomy': "0", 'Hormonal': "0"})
         ctk.set_appearance_mode("light")
