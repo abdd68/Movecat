@@ -247,7 +247,6 @@ class PLOTFrame(ctk.CTkScrollableFrame):
         self.create_figure1()
         self.create_figure2()
         self.create_figure3()
-        self.create_figure4()
         self.createWidget()
 
     def createWidget(self):
@@ -266,77 +265,77 @@ class PLOTFrame(ctk.CTkScrollableFrame):
                 json.dump(existing_data, json_file, indent=4)
             self.master.parent.score_save_flag = False
 
+    def cal_overall_score(self, y_pred):
+        max_index = np.argsort(y_pred)[-1]
+        submax_index = np.argsort(y_pred)[-2]
+        if max_index == 2:
+            base_score = 2 / 3 
+            bias = (y_pred[max_index] - y_pred[submax_index]) / 3
+            overall_score = base_score + bias
+        elif max_index == 0:
+            base_score = 0 / 3 
+            bias = (y_pred[max_index] - y_pred[submax_index]) / 3
+            overall_score = base_score + bias
+        elif max_index == 1:
+            base_score = 1 / 2 
+            bias = (y_pred[max_index] - y_pred[submax_index]) / 6
+            if submax_index == 2:
+                overall_score = base_score + bias
+            else:
+                overall_score = base_score - bias
+        overall_score *= 100
+        return overall_score
+        
     def create_figure1(self):
         y_pred = self.master.parent.y_pred.squeeze()
-        weights = np.array([0, 50, 100])  # 权重
-        # 计算整体风险评分
-        overall_score = np.dot(y_pred, weights)
+        overall_score = self.cal_overall_score(y_pred)
         self.overall_score = overall_score
         self.save_score()
+
         # 创建一个Figure
-        plt.figure(num = 1, figsize=(8, 2.5), dpi=100)
+        plt.figure(num = 1, figsize=(8, 3), dpi=100)
         
         plt.rcParams['font.sans-serif'] = ['SimHei']
         plt.rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
         if self.master.parent.lang == 'Chinese':
-            font = {'family': 'SimHei', 'weight': 'normal', 'size': 22} 
+            font = {'family': 'SimHei', 'weight': 'normal', 'size': 22}
         else:
             font = {'family': 'serif', 'serif': 'Times New Roman', 'weight': 'normal', 'size': 22}
         plt.rc('font', **font)
 
         # 创建分段渐变条
-        plt.title(self.get_text('Lymphedema risk score'), pad = 20)
+        plt.title(self.get_text('Lymphedema risk score'), pad=50)
         gradient = np.linspace(0, 1, 1000).reshape(1, -1)
         plt.imshow(gradient, aspect='auto', cmap='RdYlGn_r', extent=[0, 100, 0, 1])
 
         # 绘制风险评分的指示线
         plt.axvline(overall_score, color='black', linewidth=2)
-        plt.text(overall_score, 0.5, f'{overall_score:.1f}', color='black', va='center', ha='center', backgroundcolor='white')
+        plt.text(overall_score, 0.5, f'{overall_score:.1f}', color='black', va='center', ha='center', bbox=dict(facecolor='white',edgecolor='none', alpha=0.7))
+
+        # 添加分界线
+        threshold1 = 33.3
+        threshold2 = 66.7
+        plt.axvline(threshold1, color='blue', linestyle='--', linewidth=2)
+        plt.axvline(threshold2, color='blue', linestyle='--', linewidth=2)
+
+        # 添加箭头符号指示当前值，并将箭头放在图像上方
+        re_dict = {0: "low_risk", 1: "mild", 2: "moderate_severe"}
+        plt.gca().annotate(
+            self.master.parent.get_text(re_dict[np.argsort(y_pred)[-1]]), xy=(overall_score, 1), xytext=(overall_score, 1.2),
+            arrowprops=dict(facecolor='black', shrink=0.05, headwidth=10, width=2),
+            ha='center', va='bottom', backgroundcolor='white'
+        )
 
         # 设置图形标题和标签
         plt.gca().set_yticks([])
         plt.gca().set_xlim(0, 100)
-        plt.tight_layout() 
+        plt.tight_layout()
 
         self.canvas = FigureCanvasTkAgg(plt.figure(num=1), self)
         self.canvas.draw()
         self.canvas.get_tk_widget().pack(side='top', fill='both', expand=1)
-
-    
-    def create_figure2(self):
-        y_pred = self.master.parent.y_pred.squeeze()
-        # 创建一个Figure
-        plt.figure(num = 2, figsize=(8, 3), dpi=100)
-        plt.title(self.get_text('Predicted possibility of your Lymphedema stage'), pad = 20)
-        # 创建分段条形
-        start = 0
-        labels = [self.get_text('low_risk'), self.get_text('mild'), self.get_text('moderate/severe')]
-        colors = ['green', 'yellow', 'red']
         
-        for i, (probability, label, color) in enumerate(zip(y_pred, labels, colors)):
-            plt.barh(0.5, probability * 100, left=start, height=1, color=color)
-            start += probability * 100
-
-        # 去掉刻度
-        plt.gca().set_yticks([])
-        plt.gca().set_xticks([])
-        plt.gca().margins(x=0, y=0.01)
-        # for spine in plt.gca().spines.values():
-        #     spine.set_visible(False) # 删除边框
-        # 创建一个图例
-        legend_texts = [f'{label}: {probability:.2%}' for label, probability in zip(labels, y_pred)]
-        legend_labels = [f'{label}: {probability:.2%}' for label, probability in zip(labels, y_pred)]
-        legend_colors = dict(zip(legend_labels, colors))
-
-        handles = [plt.Rectangle((0, 0), 1, 1, color=legend_colors[label]) for label in legend_labels]
-        plt.legend(handles, legend_texts, loc='upper center', bbox_to_anchor=(0.5, -0.05), ncol=len(labels))
-        plt.tight_layout() 
-
-        self.canvas = FigureCanvasTkAgg(plt.figure(num=2), self)
-        self.canvas.draw()
-        self.canvas.get_tk_widget().pack(side='top', fill='both', expand=1)
-
-    def create_figure3(self):
+    def create_figure2(self):
         with open(self.master.parent.record_data_path, 'r') as json_file:
             existing_data = json.load(json_file)
             score_list = existing_data[self.master.parent.current_user]['score_list']
@@ -408,7 +407,7 @@ class PLOTFrame(ctk.CTkScrollableFrame):
 
         create_buttons(self)
 
-    def create_figure4(self):
+    def create_figure3(self):
         
         plt.figure(num=4, figsize=(7, 12), dpi=80, facecolor="white", edgecolor='Teal', frameon=True)
         plt.title(self.get_text('Important factors contributing to Lymphedema'), pad=20, fontsize=36)
