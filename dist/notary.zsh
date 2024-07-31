@@ -1,6 +1,6 @@
 #/bin/zsh
 codesign --remove-signature diagnosis.app
-codesign --force --sign "Developer ID Application: Mei Fu (555AN3VM96)"  --options=runtime --timestamp diagnosis.app
+codesign --deep --force --sign "Developer ID Application: Mei Fu (555AN3VM96)"  --options=runtime --timestamp diagnosis.app
 codesign -d -vv "diagnosis.app"
 codesign --verify --verbose diagnosis.app
 
