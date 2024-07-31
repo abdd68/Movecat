@@ -128,9 +128,9 @@
         "You are logged out": "You are logged out",
         "Reset": "Reset",
         "Save": "Save",
-        "Lymphedema risk score": "Lymphedema Risk Score",
+        "Lymphedema score": "Lymphedema Score",
         "Predicted possibility of your Lymphedema stage": "Predicted Possibility of Your Lymphedema Stage",
-        "Lymphedema Risk Score History": "Lymphedema Risk Score History",
+        "Lymphedema Score History": "Lymphedema Score History",
         "Score": "Score",
         "Test Number": "Test Number",
         "last 5 times": "Last 5 Times",
@@ -174,7 +174,11 @@
         "Are you sure you want to delete this account? This operation can't be reversed.": "Are you sure you want to delete this account? This operation can't be reversed.",
         "Delete Account": "Delete account",
         "Invalid password: your password is incorrect.": "Invalid password: your password is incorrect.",
-        "Please enter your password:": "Please enter your password:"
+        "Please enter your password:": "Please enter your password:",
+        "Factor Analysis": "Factor Analysis",
+        "Factors": "Factors",
+        "History": "History",
+        "Detection History": "Detection History"
     },
     "Chinese": {
         "title": "淋巴水肿早期检测系统",
@@ -305,9 +309,9 @@
         "You are logged out": "您未登录",
         "Reset": "重置",
         "Save": "保存",
-        "Lymphedema risk score": "淋巴水肿风险评分",
+        "Lymphedema score": "淋巴水肿评分",
         "Predicted possibility of your Lymphedema stage": "预测您处于各淋巴水肿阶段的概率",
-        "Lymphedema Risk Score History": "淋巴水肿风险评分历史",
+        "Lymphedema Score History": "淋巴水肿评分历史",
         "Score": "得分",
         "Test Number": "测试编号",
         "last 5 times": "最近5次",
@@ -351,7 +355,11 @@
         "Are you sure you want to delete this account? This operation can't be reversed.": "您确定要删除此账户吗？此操作无法撤销。",
         "Delete Account": "删除账户",
         "Invalid password: your password is incorrect.": "密码无效：您的密码不正确。",
-        "Please enter your password:": "请输入您的密码："
+        "Please enter your password:": "请输入您的密码：",
+        "Factor Analysis": "因素分析",
+        "Factors": "因素",
+        "History": "历史",
+        "Detection History": "检测历史"
         
     },
     "Spanish": {
@@ -483,9 +491,9 @@
         "You are logged out": "Has cerrado sesión",
         "Reset": "Restablecer",
         "Save": "Guardar",
-        "Lymphedema risk score": "Puntuación de riesgo de linfedema",
+        "Lymphedema score": "La puntuación para el linfedema",
         "Predicted possibility of your Lymphedema stage": "Posibilidad predicha de su etapa de linfedema",
-        "Lymphedema Risk Score History": "Historial de puntuaciones de riesgo de linfedema",
+        "Lymphedema Score History": "Historia de la puntuación de linfedema",
         "Score": "Puntuación",
         "Test Number": "Número de prueba",
         "last 5 times": "Últimas 5 veces",
@@ -529,6 +537,10 @@
         "Are you sure you want to delete this account? This operation can't be reversed.": "¿Estás seguro de que deseas eliminar esta cuenta? Esta operación no se puede revertir.",
         "Delete Account": "Eliminar cuenta",
         "Invalid password: your password is incorrect.": "Contraseña inválida: tu contraseña es incorrecta.",
-        "Please enter your password:": "Por favor introduzca su contraseña :"
+        "Please enter your password:": "Por favor introduzca su contraseña :",
+        "Factor Analysis": "Análisis de Factores",
+        "Factors": "Factores",
+        "History": "Historia",
+        "Detection History": "Historial de Detección"
     }
 }

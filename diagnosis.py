@@ -155,18 +155,18 @@ class MyScrollableCheckboxFrame(ctk.CTkScrollableFrame):
         self.grid_rowconfigure(0, weight=1)
 
     def get(self):
-        admit_page3 = True
+        admit_pagechart = True
         for i, (key, value) in enumerate(self.labels.items()):
             self.labels[key] = self.str2int(i, self.entries[i].get())
             if self.labels[key].strip() != '' and self.labels[key].strip() != '-':
                 continue
             else:
                 if i < 28:
-                    admit_page3 = False
+                    admit_pagechart = False
                     break
                 if i >= 28:
                     self.labels[key] = '-'
-        return self.labels, admit_page3
+        return self.labels, admit_pagechart
     
     def update_texts(self):
         # self.configure(label_text=self.get_text(self.title))
@@ -231,7 +231,7 @@ class MyScrollableCheckboxFrame(ctk.CTkScrollableFrame):
             return int_
 
 class PLOTFrame(ctk.CTkScrollableFrame):
-    def __init__(self, master, title=None, font=None, get_text=None, fg_color = 'white', height=280):
+    def __init__(self, master, title=None, font=None, get_text=None, fg_color = 'white', height=50):
         super().__init__(master, width=720, height=height, label_text=get_text(title), fg_color = fg_color)
         self.master = master
         self.get_text = get_text
@@ -244,9 +244,16 @@ class PLOTFrame(ctk.CTkScrollableFrame):
             self.bind_all("<MouseWheel>", on_mouse_wheel)
 
     def construct(self):
+        select_mask = ['Mobility', 'ArmSwelling', 'BreastSwelling', 'Skin', 'FHT', 'DISCOMFORT'\
+        , 'SYM_COUNT', 'ChestWallSwelling', 'Mastectomy', 'Lumpectomy', 'TIME_LAPSE']
+        data_select = np.array([[self.master.parent.output_labels[item] for item in select_mask]], dtype=float)
+        model_path = os.path.join(basepath, 'models' , 'GBT.pkl')
+        with open(model_path, 'rb') as f:
+            model = pickle.load(f)
+            
+        self.y_pred = model.predict_proba(data_select).squeeze()
+
         self.create_figure1()
-        self.create_figure2()
-        self.create_figure3()
         self.createWidget()
 
     def createWidget(self):
@@ -287,24 +294,24 @@ class PLOTFrame(ctk.CTkScrollableFrame):
         return overall_score
         
     def create_figure1(self):
-        y_pred = self.master.parent.y_pred.squeeze()
-        overall_score = self.cal_overall_score(y_pred)
+        max_label = np.argmax(self.y_pred)
+        overall_score = self.cal_overall_score(self.y_pred)
         self.overall_score = overall_score
         self.save_score()
 
         # 创建一个Figure
-        plt.figure(num = 1, figsize=(8, 3), dpi=100)
+        plt.figure(num = 1, figsize=(8, 3.3), dpi=100)
         
         plt.rcParams['font.sans-serif'] = ['SimHei']
         plt.rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
         if self.master.parent.lang == 'Chinese':
-            font = {'family': 'SimHei', 'weight': 'normal', 'size': 22}
+            font = {'family': 'SimHei', 'weight': 'normal', 'size': 26}
         else:
-            font = {'family': 'serif', 'serif': 'Times New Roman', 'weight': 'normal', 'size': 22}
+            font = {'family': 'serif', 'serif': 'Times New Roman', 'weight': 'normal', 'size': 26}
         plt.rc('font', **font)
 
         # 创建分段渐变条
-        plt.title(self.get_text('Lymphedema risk score'), pad=50)
+        plt.title(self.get_text('Lymphedema score'), pad=60)
         gradient = np.linspace(0, 1, 1000).reshape(1, -1)
         plt.imshow(gradient, aspect='auto', cmap='RdYlGn_r', extent=[0, 100, 0, 1])
 
@@ -315,15 +322,16 @@ class PLOTFrame(ctk.CTkScrollableFrame):
         # 添加分界线
         threshold1 = 33.3
         threshold2 = 66.7
-        plt.axvline(threshold1, color='blue', linestyle='--', linewidth=2)
-        plt.axvline(threshold2, color='blue', linestyle='--', linewidth=2)
+        plt.axvline(threshold1, color='black', linestyle='--', linewidth=2)
+        plt.axvline(threshold2, color='black', linestyle='--', linewidth=2)
 
         # 添加箭头符号指示当前值，并将箭头放在图像上方
         re_dict = {0: "low_risk", 1: "mild", 2: "moderate_severe"}
         plt.gca().annotate(
-            self.master.parent.get_text(re_dict[np.argsort(y_pred)[-1]]), xy=(overall_score, 1), xytext=(overall_score, 1.2),
-            arrowprops=dict(facecolor='black', shrink=0.05, headwidth=10, width=2),
-            ha='center', va='bottom', backgroundcolor='white'
+            self.master.parent.get_text(re_dict[np.argsort(self.y_pred)[-1]]), xy=(overall_score, 1), xytext=(overall_score, 1.2),
+            arrowprops=dict(facecolor='black', shrink=0.1, headwidth=10, width=3),
+            ha='center', va='bottom', backgroundcolor='white',
+            fontsize=30
         )
 
         # 设置图形标题和标签
@@ -334,105 +342,42 @@ class PLOTFrame(ctk.CTkScrollableFrame):
         self.canvas = FigureCanvasTkAgg(plt.figure(num=1), self)
         self.canvas.draw()
         self.canvas.get_tk_widget().pack(side='top', fill='both', expand=1)
-        
-    def create_figure2(self):
+        # 在图表下添加文字
         with open(self.master.parent.record_data_path, 'r') as json_file:
             existing_data = json.load(json_file)
-            score_list = existing_data[self.master.parent.current_user]['score_list']
+            try:
+                score_list = existing_data[self.master.parent.current_user]['score_list']
+            except:
+                score_list = None
 
-        plt.figure(num = 3, figsize=(8, 6.8), dpi=100)
-        def plot_scores(scores):
-            x = range(1, len(scores) + 1)
-            plt.xticks(range(min(x) - 1, max(x) + 1, 1))
-            plt.ylim(min(scores) - 5, max(scores) + 5)
-            plt.plot(x, scores, marker='o', linestyle='-', color='b', linewidth=3, label='Scores')
-            plt.title(self.get_text('Lymphedema Risk Score History'), pad = 20)
-            plt.xlabel(self.get_text('Test Number'))
-            plt.ylabel(self.get_text('Score'))
-            plt.grid(True)
-            for i in range(len(scores)):
-                plt.text(x[i], scores[i] + 0.4, str(round(scores[i],1)), fontsize=24, ha='center', va='bottom')
+        if self.font[1] > 24:
+            comments = ctk.CTkTextbox(self, font=self.font, width=1500, height=750)
+        else:
+            comments = ctk.CTkTextbox(self, font=self.font, width=1500, height=500)
+        if score_list is None or len(score_list) == 1:
+            if max_label == 1 or max_label == 2:
+                comments.insert('1.0', self.master.parent.get_text(f'This is your first time detecting Lymphedema. Keep on excercising and let us see your progress!'))
+            elif max_label == 0:
+                comments.insert('1.0', self.master.parent.get_text(f'This is your first time detecting Lymphedema. Keep on the good record!'))
+        else:
+            last_time_score = score_list[-2]
+            if max_label == 0:
+                comments.insert('1.0', self.master.parent.get_text(f'Your detection result shows low risk, keep on the good record!'))
+            elif overall_score > last_time_score and (max_label == 1 or max_label == 2):
+                comments.insert('1.0', self.master.parent.get_text(f'Your detection result requires further inspection, please advice the doctors for further help. Keep on excercising and let us see your progress!'))
+            elif overall_score == last_time_score and (max_label == 1 or max_label == 2):
+                comments.insert('1.0', self.master.parent.get_text(f'Your detection result does not change since the last time. Keep on excercising and let us see your progress!'))
+            elif overall_score < last_time_score - 3 and (max_label == 1 or max_label == 2):
+                comments.insert('1.0', self.master.parent.get_text(f'Congratulations! Your detection result is much better than your last time. Keep on the good record!'))
+            elif overall_score < last_time_score and (max_label == 1 or max_label == 2):
+                comments.insert('1.0', self.master.parent.get_text(f'Congratulations! Your detection result is better than your last time. Keep on excercising and keep on the good record!'))
 
-        def create_buttons(self):
-            button_frame = ctk.CTkFrame(self, fg_color='white', bg_color='white')
-            button_frame.pack(fill='x', pady=(0, 0))
-            button_frame.columnconfigure(0, weight=1)
-            button_frame.columnconfigure(1, weight=1)
-            button_frame.columnconfigure(2, weight=1)
-            button_frame.columnconfigure(3, weight=1)
-            
-            custom_font = ctk.CTkFont(family="Helvetica", size=self.master.parent.fontsize)
-            recent_5_button = ctk.CTkButton(button_frame, text=self.get_text("last 5 times"), command=show_recent_5, font=custom_font)
-            recent_5_button.grid(row=0, column = 0, pady = 10)
-
-            recent_10_button = ctk.CTkButton(button_frame, text=self.get_text("last 10 times"), command=show_recent_10, font=custom_font)
-            recent_10_button.grid(row=0, column = 1, pady = 10)
-
-            recent_20_button = ctk.CTkButton(button_frame, text=self.get_text("last 20 times"), command=show_recent_20, font=custom_font)
-            recent_20_button.grid(row=0, column = 2, pady = 10)
-
-            all_button = ctk.CTkButton(button_frame, text=self.get_text("Overall"), command=show_all, font=custom_font)
-            all_button.grid(row=0, column = 3, pady = 10)
-        
-        def get_recent_data(data, num):
-            return data[-num:]
-
-        def show_recent_5():
-            recent_5_data = get_recent_data(score_list, 5)
-            update_plot(recent_5_data)
-            
-        def show_recent_10():
-            recent_10_data = get_recent_data(score_list, 10)
-            update_plot(recent_10_data)
-
-        def show_recent_20():
-            recent_20_data = get_recent_data(score_list, 20)
-            update_plot(recent_20_data)
-            
-        def show_all():
-            update_plot(score_list)
-
-        def update_plot(data):
-            plt.figure(num=3).clear()  # 清除之前的图表
-            plot_scores(data)
-            self.canvas_.draw()
-
-        scores = score_list[-5:]
-        plot_scores(scores)
-        plt.tight_layout()
-
-        self.canvas_ = FigureCanvasTkAgg(plt.figure(num=3), self)
-        self.canvas_.draw()
-        self.canvas_.get_tk_widget().pack(side='top', fill='both', expand=1)
-
-        create_buttons(self)
-
-    def create_figure3(self):
-        
-        plt.figure(num=4, figsize=(7, 12), dpi=80, facecolor="white", edgecolor='Teal', frameon=True)
-        plt.title(self.get_text('Important factors contributing to Lymphedema'), pad=20, fontsize=36)
-        plt.yscale('symlog', linthresh=0.00005)
-        plt.tick_params(axis='x', labelsize=18, rotation=60)
-        font_prop = FontProperties(family='Times New Roman')
-        plt.tick_params(axis='y', labelsize=18)
-        for label in plt.gca().get_yticklabels():
-            label.set_fontproperties(font_prop)
-        data = [('Arm or hand swelling', 0.5666504441537034), ('Symptom severity', 0.32829106757634513), ('Breast swelling', 0.05866949630997336), ('time lapse since last surgery', 0.0270874570016606), ('Height and weight (BMI)', 0.0048442873079247665), ('Tightness, firmness, and heaviness', 0.003799860520333767), ('Age', 0.0036176355797100405), ('Number of removed nodes', 0.0027917973843724414), ('Toughness of skin', 0.0018357913101027619), ('Discomfort', 0.0009075648872365948), ('Pain, aching and soreness', 0.0007936402703285446), ('Hormonal', 0.00019944254371048652), ('Radiation', 0.00017741997766747576), ('Limited Mobility', 0.000173412474200293), ('ChestWall swelling', 0.0001060488637141992), ('Lumpectomy', 2.9960955692536147e-05), ('Chemotherapy', 1.3416562172188665e-05), ('Mastectomy', 1.1256321151464536e-05)]
-        data = [(self.get_text(value1),value2) for value1, value2 in data]
-        x = [item[0] for item in data]
-        y = [item[1] for item in data]
-        loc = zip(x, y)
-        plt.ylim(0, 1)
-        plt.bar(x, y, facecolor='Teal')
-        plt.xticks(fontsize = 24)
-        plt.yticks(fontsize = 24)
-        for x, y in loc:
-            plt.text(x, y, '%.1g' % y, ha='center', va='bottom')
-        plt.tight_layout()
-
-        self.canvas = FigureCanvasTkAgg(plt.figure(num=4), self)
-        self.canvas.draw()
-        self.canvas.get_tk_widget().pack(side='top', fill='both', expand=1, pady = 30)
+        # 获取现有文本的末尾位置
+        end_position = comments.index("end-1c")
+        # 在末尾添加新文本
+        comments.insert(end_position, '\n\n' + self.master.parent.get_text(f'diag_{re_dict[max_label]}') + self.master.parent.get_text("recommendation"))
+        comments.configure(state="disabled")
+        comments.pack()
 
     def update_texts(self):
         self.remove()
@@ -574,15 +519,15 @@ class Page2(ctk.CTkFrame):
         self.scrollable_checkbox_frame.grid(row=1, column=0, padx=10, columnspan=4, pady=0, sticky="nsew")
 
         def on_button_submit():
-            self.parent.labels, admit_page3 = self.scrollable_checkbox_frame.get()
-            if not admit_page3:
+            self.parent.labels, admit_pagechart = self.scrollable_checkbox_frame.get()
+            if not admit_pagechart:
                 messagebox.showwarning(self.parent.get_text("Incomplete Data"), self.parent.get_text("Data not fully completed. Please fill in all required fields."))
                 return
             suggestions = self.parent.labels
             self.save_suggestions(suggestions)
             self.parent.output_labels = self.label_processing(self.parent.labels)
             self.parent.score_save_flag = True
-            self.parent.show_frame("Page3")
+            self.parent.show_frame("Pagechart")
 
         def on_button_save():
             self.parent.labels, _ = self.scrollable_checkbox_frame.get()
@@ -630,7 +575,7 @@ class Page2(ctk.CTkFrame):
             return '0'
         else:
             return _str
-        
+
     def label_processing(self, labels):
         def str2b(str_):
             return 0 if str_ == '0' else 1
@@ -655,98 +600,203 @@ class Page2(ctk.CTkFrame):
         output_labels['Hormonal'] = self.validate_str(labels['Hormonal therapy'])
         return output_labels
 
-class Page3(ctk.CTkFrame):
+class Pagehistory(ctk.CTkFrame):
     def __init__(self, parent):
         super().__init__(parent)
         self.parent = parent
         self.font = self.parent.font_list[0]
         self.constructed = False
+        self.get_text = self.parent.get_text
 
     def configure_grid(self):
         self.grid_rowconfigure(0, weight=0)
-        for row in range(1, 4):
-            self.grid_rowconfigure(row, weight=1)
-        for col in range(2):
+        self.grid_rowconfigure(1, weight=1)
+        self.grid_rowconfigure(2, weight=0)
+        self.grid_columnconfigure(0, weight=1)
+
+    def construct(self):
+        if not self.constructed:
+            self.constructed = True
+        self.page_label = ctk.CTkLabel(self, text=self.parent.get_text("Detection History"), font=self.font)
+        self.page_label.grid(row=0, column=0, pady=25, sticky="ew")
+
+        self.create_figure2()
+        self.back_button = ctk.CTkButton(self, text=self.get_text("return"), command=lambda: self.parent.show_frame("Pagechart"), font=self.font)
+        self.back_button.grid(row=3, column=0, pady=20, sticky="ew")
+
+    def update_texts(self):
+        self.remove()
+        self.construct()
+
+    def remove(self):
+        plt.close('all')
+        for widget in self.winfo_children():
+            widget.destroy()
+        
+    def create_figure2(self):
+        with open(self.parent.record_data_path, 'r') as json_file:
+            existing_data = json.load(json_file)
+            score_list = existing_data[self.parent.current_user]['score_list']
+
+        plt.figure(num = 3, figsize=(8, 6.8), dpi=100)
+        plt.rcParams['font.sans-serif'] = ['SimHei']
+        plt.rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
+        if self.parent.lang == 'Chinese':
+            font = {'family': 'SimHei', 'weight': 'normal', 'size': 26}
+        else:
+            font = {'family': 'serif', 'serif': 'Times New Roman', 'weight': 'normal', 'size': 26}
+        plt.rc('font', **font)
+        
+        def plot_scores(scores):
+            x = range(1, len(scores) + 1)
+            plt.xticks(range(min(x) - 1, max(x) + 1, 1))
+            plt.ylim(min(scores) - 5, max(scores) + 5)
+            plt.plot(x, scores, marker='o', linestyle='-', color='b', linewidth=3, label='Scores')
+            plt.title(self.get_text('Lymphedema Score History'), pad = 20)
+            plt.xlabel(self.get_text('Test Number'))
+            plt.ylabel(self.get_text('Score'))
+            plt.grid(True)
+            for i in range(len(scores)):
+                plt.text(x[i], scores[i] + 0.4, str(round(scores[i],1)), fontsize=24, ha='center', va='bottom')
+
+        def create_buttons(self, pic_frame):
+            
+            custom_font = ctk.CTkFont(family="Helvetica", size=self.parent.fontsize)
+            recent_5_button = ctk.CTkButton(pic_frame, text=self.get_text("last 5 times"), command=show_recent_5, font=custom_font)
+            recent_5_button.grid(row=1, column = 0, pady = 20)
+
+            recent_10_button = ctk.CTkButton(pic_frame, text=self.get_text("last 10 times"), command=show_recent_10, font=custom_font)
+            recent_10_button.grid(row=1, column = 1)
+
+            recent_20_button = ctk.CTkButton(pic_frame, text=self.get_text("last 20 times"), command=show_recent_20, font=custom_font)
+            recent_20_button.grid(row=1, column = 2)
+
+            all_button = ctk.CTkButton(pic_frame, text=self.get_text("Overall"), command=show_all, font=custom_font)
+            all_button.grid(row=1, column = 3)
+        
+        def get_recent_data(data, num):
+            return data[-num:]
+
+        def show_recent_5():
+            recent_5_data = get_recent_data(score_list, 5)
+            update_plot(recent_5_data)
+            
+        def show_recent_10():
+            recent_10_data = get_recent_data(score_list, 10)
+            update_plot(recent_10_data)
+
+        def show_recent_20():
+            recent_20_data = get_recent_data(score_list, 20)
+            update_plot(recent_20_data)
+            
+        def show_all():
+            update_plot(score_list)
+
+        def update_plot(data):
+            plt.figure(num=3).clear()  # 清除之前的图表
+            plot_scores(data)
+            self.canvas_.draw()
+
+        scores = score_list[-5:]
+        plot_scores(scores)
+        plt.tight_layout()
+        pic_frame = ctk.CTkFrame(self, fg_color='white', bg_color='white')
+        pic_frame.grid(row=1, column=0, pady=20, sticky="ew")
+        pic_frame.columnconfigure(0, weight=1)
+        pic_frame.columnconfigure(1, weight=1)
+        pic_frame.columnconfigure(2, weight=1)
+        pic_frame.columnconfigure(3, weight=1)
+        pic_frame.rowconfigure(0, weight=1)
+        pic_frame.rowconfigure(1, weight=0)
+
+        self.canvas_ = FigureCanvasTkAgg(plt.figure(num=3), pic_frame)
+        self.canvas_.draw()
+        self.canvas_.get_tk_widget().grid(row=0, column=0, columnspan=4, pady=20, sticky="ew")
+
+        create_buttons(self, pic_frame)
+        
+class Pagefactor(ctk.CTkFrame):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.parent = parent
+        self.font = self.parent.font_list[0]
+        self.constructed = False
+        self.get_text = self.parent.get_text
+
+    def configure_grid(self):
+        self.grid_rowconfigure(0, weight=0)
+        self.grid_rowconfigure(1, weight=1)
+        self.grid_rowconfigure(2, weight=0)
+        for col in range(1):
             self.grid_columnconfigure(col, weight=1)
 
     def construct(self):
         if not self.constructed:
             self.constructed = True
-        num_columns = 1
-        self.page_label = ctk.CTkLabel(self, text=self.parent.get_text("detection_result"), font=self.font)
-        self.page_label.grid(row=0, column=0, columnspan=num_columns*2, pady=25, sticky="ew")
+        self.page_label = ctk.CTkLabel(self, text=self.get_text("Factor Analysis"), font=self.font)
+        self.page_label.grid(row=0, column=0, columnspan=1, pady=25, sticky="ew")
 
-        select_mask = ['Mobility', 'ArmSwelling', 'BreastSwelling', 'Skin', 'FHT', 'DISCOMFORT'\
-        , 'SYM_COUNT', 'ChestWallSwelling', 'Mastectomy', 'Lumpectomy', 'TIME_LAPSE']
-        data_select = np.array([[self.parent.output_labels[item] for item in select_mask]], dtype=float)
-        model_path = os.path.join(basepath, 'models' , 'GBT.pkl')
-
-        with open(model_path, 'rb') as f:
-            model = pickle.load(f)
-        y_pred = model.predict_proba(data_select)
-        max_label = np.argmax(y_pred)
-        self.parent.y_pred = y_pred
-        re_dict = {0: "low_risk", 1: "mild", 2: "moderate_severe"}
-        self.text_result = self.parent.get_text("your_predicted_lymphedema_risk").format(risk=self.parent.get_text(re_dict[max_label]))
-        self.gbt_result = ctk.CTkLabel(self, text=self.text_result, font=self.font, height=170) # !!!!!
-        self.gbt_result.grid(row=1, columnspan=2)
-        weights = np.array([0, 50, 100])  # 权重
-        with open(self.parent.record_data_path, 'r') as json_file:
-            existing_data = json.load(json_file)
-            try:
-                score_list = existing_data[self.parent.current_user]['score_list']
-            except:
-                score_list = None
-        overall_score = np.dot(y_pred.squeeze(), weights).item()
-        self.comments = ctk.CTkTextbox(self, font=self.font, width=1500, height=280)
-
-        if score_list is None:
-            if max_label == 1 or max_label == 2:
-                self.comments.insert('0.0', self.parent.get_text(f'This is your first time detecting Lymphedema. Keep on excercising and let us see your progress!'))
-            elif max_label == 0:
-                self.comments.insert('0.0', self.parent.get_text(f'This is your first time detecting Lymphedema. Keep on the good record!'))
-        else:
-            if not self.parent.score_save_flag: # not allowed to submit score. At this point the score must have been submitted
-                if len(score_list) == 1:
-                    last_time_score = score_list[0]
-                else:
-                    last_time_score = score_list[-2]
-            else:
-                last_time_score = score_list[-1]
-            if max_label == 0:
-                self.comments.insert('0.0', self.parent.get_text(f'Your detection result shows low risk, keep on the good record!'))
-            elif overall_score > last_time_score and (max_label == 1 or max_label == 2):
-                self.comments.insert('0.0', self.parent.get_text(f'Your detection result requires further inspection, please advice the doctors for further help. Keep on excercising and let us see your progress!'))
-            elif overall_score == last_time_score and (max_label == 1 or max_label == 2):
-                self.comments.insert('0.0', self.parent.get_text(f'Your detection result does not change since the last time. Keep on excercising and let us see your progress!'))
-            elif overall_score < last_time_score - 3 and (max_label == 1 or max_label == 2):
-                self.comments.insert('0.0', self.parent.get_text(f'Congratulations! Your detection result is much better than your last time. Keep on the good record!'))
-            elif overall_score < last_time_score and (max_label == 1 or max_label == 2):
-                self.comments.insert('0.0', self.parent.get_text(f'Congratulations! Your detection result is better than your last time. Keep on excercising and keep on the good record!'))
-        self.comments.configure(state="disabled")
-        self.comments.grid(row=2, columnspan=2, pady = 20)
-        self.diagnosis = ctk.CTkTextbox(self, font=self.font, width=1500, height=400)
-        self.diagnosis.insert('0.0', self.parent.get_text(f'diag_{re_dict[max_label]}') + self.parent.get_text("recommendation"))
-        self.diagnosis.configure(state="disabled")
-        self.diagnosis.grid(row=3, column = 0, columnspan=2, pady = 20)
-
-        self.plot_button = ctk.CTkButton(self, text=self.parent.get_text("visualized diagnosis"), command=lambda: self.parent.show_frame("Pagechart"), font=self.font)
-        self.plot_button.grid(row=4, column=0, pady=20, sticky="ew")
-        self.back_button = ctk.CTkButton(self, text=self.parent.get_text("return"), command=lambda: self.parent.show_frame("Page2"), font=self.font)
-        self.back_button.grid(row=4, column=1, pady=20, sticky="ew")
-
-        self.update_texts()
-
-    def remove(self):
-        for widget in self.winfo_children():
-            widget.destroy()
+        self.create_figure3()
+        self.back_button = ctk.CTkButton(self, text=self.get_text("return"), command=lambda: self.parent.show_frame("Pagechart"), font=self.font)
+        self.back_button.grid(row=2, column=0, pady=20, sticky="ew")
 
     def update_texts(self):
-        self.page_label.configure(text=self.parent.get_text("detection_result"))
-        self.gbt_result.configure(text=self.parent.get_text(self.text_result))
-        self.plot_button.configure(text=self.parent.get_text("visualized diagnosis"))
-        self.back_button.configure(text=self.parent.get_text("return"))
+        self.remove()
+        self.construct()
 
+    def remove(self):
+        plt.close('all')
+        for widget in self.winfo_children():
+            widget.destroy()
+        
+    def create_figure3(self):
+        plt.figure(num=4, figsize=(30, 15), dpi=80, facecolor="white", edgecolor='Teal', frameon=True)
+        plt.rcParams['font.sans-serif'] = ['SimHei']
+        plt.rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
+        if self.parent.lang == 'Chinese':
+            font = {'family': 'SimHei', 'weight': 'normal', 'size': 26}
+        else:
+            font = {'family': 'serif', 'serif': 'Times New Roman', 'weight': 'normal', 'size': 26}
+        plt.rc('font', **font)
+        
+        plt.title(self.get_text('Important factors contributing to Lymphedema'), pad=20, fontsize=36)
+        plt.xscale('symlog', linthresh=0.00005)
+        plt.tick_params(axis='y', labelsize=18)
+        font_prop = FontProperties(family='Times New Roman')
+        plt.tick_params(axis='x', labelsize=18)
+        for label in plt.gca().get_xticklabels():
+            label.set_fontproperties(font_prop)
+
+        data = [('Arm or hand swelling', 0.5666504441537034), ('Symptom severity', 0.32829106757634513), 
+                ('Breast swelling', 0.05866949630997336), ('time lapse since last surgery', 0.0270874570016606), 
+                ('Height and weight (BMI)', 0.0048442873079247665), ('Tightness, firmness, and heaviness', 0.003799860520333767), 
+                ('Age', 0.0036176355797100405), ('Number of removed nodes', 0.0027917973843724414), 
+                ('Toughness of skin', 0.0018357913101027619), ('Discomfort', 0.0009075648872365948), 
+                ('Pain, aching and soreness', 0.0007936402703285446), ('Hormonal', 0.00019944254371048652), 
+                ('Radiation', 0.00017741997766747576), ('Limited Mobility', 0.000173412474200293), 
+                ('ChestWall swelling', 0.0001060488637141992), ('Lumpectomy', 2.9960955692536147e-05), 
+                ('Chemotherapy', 1.3416562172188665e-05), ('Mastectomy', 1.1256321151464536e-05)]
+        
+        data = [(self.get_text(value1), value2) for value1, value2 in data]
+        x = [item[0] for item in data]
+        y = [item[1] for item in data]
+        loc = zip(x, y)
+        plt.xlim(0, 1)
+        plt.barh(x, y, facecolor='Teal')
+        plt.xticks(fontsize=24)
+        plt.yticks(fontsize=24)
+        plt.gca().invert_yaxis()  # 反转纵轴顺序
+        for x, y in loc:
+            plt.text((1+0.03)*y, x, '%.1g' % y)
+
+        plt.tight_layout()
+        plt.subplots_adjust(left=0.255, right=0.9, top=0.91, bottom=0.08)
+
+        self.canvas = FigureCanvasTkAgg(plt.figure(num=4), self)
+        self.canvas.draw()
+        self.canvas.get_tk_widget().grid(row=1, column=0, pady=20, sticky="ew")
+
+        
 
 class Pagechart(ctk.CTkFrame):
     def __init__(self, parent):
@@ -759,11 +809,15 @@ class Pagechart(ctk.CTkFrame):
         if not self.constructed:
             self.constructed = True
         self.page_label = ctk.CTkLabel(self, text=self.parent.get_text("visualized diagnosis"), font=self.font)
-        self.page_label.grid(row=0, column=0, pady=20, sticky="nsew")
+        self.page_label.grid(row=0, column=0, columnspan=3, pady=20, sticky="nsew")
         self.plot_frame = PLOTFrame(self, font=self.font, get_text=self.parent.get_text, fg_color = 'white', height=600)
-        self.plot_frame.grid(row=1, column=0, padx=10, columnspan=2, pady=(10, 0), sticky="nsew")
-        self.back_button = ctk.CTkButton(self, text=self.parent.get_text("return"), command=lambda: self.parent.show_frame("Page3"), font=self.font)
-        self.back_button.grid(row=2, column=0, padx=10, columnspan=2, pady=(15, 20), sticky="ew")
+        self.plot_frame.grid(row=1, column=0, padx=10, columnspan=3, pady=(10, 0), sticky="nsew")
+        self.history_button = ctk.CTkButton(self, text=self.parent.get_text("History"), command=lambda: self.parent.show_frame("Pagehistory"), font=self.font)
+        self.history_button.grid(row=2, column=0, padx=10, pady=(15, 20), sticky="ew")
+        self.factor_button = ctk.CTkButton(self, text=self.parent.get_text("Factor Analysis"), command=lambda: self.parent.show_frame("Pagefactor"), font=self.font)
+        self.factor_button.grid(row=2, column=1, padx=10, pady=(15, 20), sticky="ew")
+        self.back_button = ctk.CTkButton(self, text=self.parent.get_text("return"), command=lambda: self.parent.show_frame("Page2"), font=self.font)
+        self.back_button.grid(row=2, column=2, padx=10, pady=(15, 20), sticky="ew")
 
         self.update_texts()
 
@@ -772,6 +826,8 @@ class Pagechart(ctk.CTkFrame):
         for row in range(1, 2):
             self.grid_rowconfigure(row, weight=1)
         self.grid_columnconfigure(0, weight=1)
+        self.grid_columnconfigure(1, weight=1)
+        self.grid_columnconfigure(2, weight=1)
 
     def update_texts(self):
         self.page_label.configure(text=self.parent.get_text("visualized diagnosis"))
@@ -949,7 +1005,9 @@ class App(ctk.CTk):
         self.frames["PageLogin"] = PageLogin(self)
         self.frames["Page1"] = Page1(self)
         self.frames["Page2"] = Page2(self)
-        self.frames["Page3"] = Page3(self)
+        self.frames["Pagehistory"] = Pagehistory(self)
+        self.frames["Pagefactor"] = Pagefactor(self)
+        self.frames["Page"] = Pagehistory(self)
         self.frames["Pageabout"] = Pageabout(self)
         self.frames["Pagechart"] = Pagechart(self)
 
@@ -1075,7 +1133,7 @@ class PasswordDialog(ctk.CTkToplevel):
     def on_submit(self):
         self.password = self.entry.get()
         self.destroy()
-    
+
 if __name__ == '__main__':
     global basepath
     if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):

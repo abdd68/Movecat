@@ -1,43 +1,51 @@
-import customtkinter as ctk
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import ttk
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import numpy as np
+import pickle
+import os
 
-class PasswordDialog(ctk.CTkToplevel):
-    def __init__(self, parent):
-        super().__init__(parent)
+class Application(tk.Frame):
+    def __init__(self, master=None):
+        super().__init__(master)
+        self.master = master
+        self.pack()
+        self.construct()
 
-        self.title("Password Entry")
-        self.geometry("300x150")
+    def construct(self):
+        select_mask = ['Mobility', 'ArmSwelling', 'BreastSwelling', 'Skin', 'FHT', 'DISCOMFORT',
+                       'SYM_COUNT', 'ChestWallSwelling', 'Mastectomy', 'Lumpectomy', 'TIME_LAPSE']
+        data_select = np.array([[self.master.parent.output_labels[item] for item in select_mask]], dtype=float)
+        basepath = os.getcwd()
+        model_path = os.path.join(basepath, 'models' , 'GBT.pkl')
+        with open(model_path, 'rb') as f:
+            model = pickle.load(f)
 
-        self.label = ctk.CTkLabel(self, text="Please enter your password:")
-        self.label.pack(pady=10)
+        self.y_pred = model.predict_proba(data_select).squeeze()
 
-        self.entry = ctk.CTkEntry(self, show='*')
-        self.entry.pack(pady=10)
+        self.create_figure1()
+        self.createWidget()
 
-        self.button = ctk.CTkButton(self, text="Submit", command=self.on_submit)
-        self.button.pack(pady=10)
+    def create_figure1(self):
+        fig, ax = plt.subplots()
+        ax.plot(self.y_pred)  # 示例图，按需调整
+        ax.set_title('预测结果')
 
-        self.password = None
+        canvas = FigureCanvasTkAgg(fig, master=self)
+        canvas.draw()
+        canvas.get_tk_widget().pack()
 
-    def on_submit(self):
-        self.password = self.entry.get()
-        self.destroy()
+        # 在图表下添加文字
+        comments_label = ttk.Label(self, text="Your detection result shows low risk, keep on the good record!")
+        comments_label.pack()
 
-def on_password_request():
-    dialog = PasswordDialog(root)
-    root.wait_window(dialog)
-    password = dialog.password
-    if password:
-        messagebox.showinfo("Password Entered", "Password entered successfully!")
-    else:
-        messagebox.showwarning("No Password", "You did not enter a password.")
+        suggestions_label = ttk.Label(self, text="Suggestions:\n\nFor individuals at low risk for lymphedema, it's essential to stay informed about the condition and its early symptoms, such as swelling or skin changes.\n\nMaintain a healthy weight through balanced diet and regular exercise, keep your skin moisturized and protected from injuries, and avoid heavy lifting or activities that strain your limbs. Use compression garments when recommended and be cautious with extreme temperatures. Regularly monitor for any changes and consult your healthcare provider promptly if symptoms develop.")
+        suggestions_label.pack()
 
-if __name__ == "__main__":
-    root = ctk.CTk()
-    root.geometry("300x150")
+    def createWidget(self):
+        pass  # 你的现有小部件创建代码
 
-    button = ctk.CTkButton(root, text="Enter Password", command=on_password_request)
-    button.pack(pady=20)
-
-    root.mainloop()
+root = tk.Tk()
+app = Application(master=root)
+app.mainloop()
