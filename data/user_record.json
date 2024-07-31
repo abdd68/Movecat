@@ -32,13 +32,14 @@
             "Chemotherapy": "0",
             "Radiation": "1",
             "SLNB_Removed_LN": "-",
-            "ALND_Removed_LN": "2",
+            "ALND_Removed_LN": "-",
             "Mastectomy": "0",
             "Lumpectomy": "0",
             "Hormonal therapy": "0"
         },
         "score_list": [
-            49.558812451934934
+            49.558812451934934,
+            76.62089633785392
         ]
     },
     "2": {
