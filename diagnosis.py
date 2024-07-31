@@ -1007,7 +1007,6 @@ class App(ctk.CTk):
         self.frames["Page2"] = Page2(self)
         self.frames["Pagehistory"] = Pagehistory(self)
         self.frames["Pagefactor"] = Pagefactor(self)
-        self.frames["Page"] = Pagehistory(self)
         self.frames["Pageabout"] = Pageabout(self)
         self.frames["Pagechart"] = Pagechart(self)
 
